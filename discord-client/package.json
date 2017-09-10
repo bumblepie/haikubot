@@ -1,0 +1,17 @@
+{
+  "name": "haikubot",
+  "version": "1.0.0",
+  "description": "A discord bot that detects haikus and persists them for later reference.",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "Luke Wolyncewicz",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^11.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^3.18.10"
+  }
+}
