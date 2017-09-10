@@ -1,3 +1,5 @@
+var syllables = require('syllable');
+
 const isHaiku = (lines) => {
   if(!(lines instanceof Array)) {
     throw "An array of strings was expected.";
@@ -21,7 +23,7 @@ const isHaiku = (lines) => {
       case 1: expectedSyllables = 7;
               break;
     }
-    if(/*syllables(line)*/0 != expectedSyllables) {
+    if(syllables(line) != expectedSyllables) {
       return false;
     }
   };
