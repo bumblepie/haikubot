@@ -13,7 +13,9 @@
     "syllable": "^2.2.0"
   },
   "devDependencies": {
-    "eslint": "^3.18.10",
+    "eslint": "^4.6.1",
+    "eslint-config-airbnb-base": "^12.0.0",
+    "eslint-plugin-import": "^2.7.0",
     "mocha": "^3.0.0"
   }
 }
