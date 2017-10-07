@@ -1,0 +1,7 @@
+{
+	getHaiku(id: "xxx") {
+    id
+    author
+    lines
+  }
+}
