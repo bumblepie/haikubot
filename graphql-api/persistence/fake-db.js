@@ -1,20 +1,20 @@
-const { Haiku } = require('../types/Haiku')
+const { Haiku } = require('../types/Haiku');
 
-const haikuMap = {}
+const haikuMap = {};
 
 const createHaiku = (haiku) => {
-  id = "xxx"
+  const id = 'xxx';
   haikuMap[id] = haiku;
-  return new Haiku(id, haiku)
-}
+  return new Haiku(id, haiku);
+};
 
 const loadHaiku = (id) => {
-  if(!haikuMap[id]) {
+  if (!haikuMap[id]) {
     throw new Error(`No haiku with id ${id} found`);
   }
 
   return new Haiku(id, haikuMap[id]);
-}
+};
 
 exports.createHaiku = createHaiku;
 exports.loadHaiku = loadHaiku;
