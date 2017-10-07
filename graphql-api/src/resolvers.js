@@ -1,13 +1,14 @@
-const { createHaiku, loadHaiku } = require('./persistence/fake-db');
+const { FakeDB } = require('./persistence/fake-db');
 
+const repo = new FakeDB();
 // The root provides a resolver function for each API endpoint
 const root = {
   getHaiku({ id }) {
-    return loadHaiku(id);
+    return repo.getHaiku(id);
   },
 
   createHaiku({ haiku }) {
-    return createHaiku(haiku);
+    return repo.createHaiku(haiku);
   },
 
 };
