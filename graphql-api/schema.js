@@ -3,7 +3,13 @@ const { buildSchema } = require('graphql');
 // Construct a schema, using GraphQL schema language
 const schema = buildSchema(`
   type Query {
-    hello: String
+    haiku(id: ID!): Haiku
+  }
+
+  type Haiku {
+    id: ID!
+    lines: [String!]
+    author: String
   }
 `);
 
