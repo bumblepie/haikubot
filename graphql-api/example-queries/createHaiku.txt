@@ -1,0 +1,16 @@
+# mutation
+mutation createHaiku($haiku: HaikuInput) {
+	createHaiku(haiku: $haiku) {
+    id
+    author
+    lines
+  }
+}
+
+# variables
+{
+  "haiku": {
+  	"lines": ["xxx", "yyy", "zzz"],
+    "author": "Author"
+  }
+}
