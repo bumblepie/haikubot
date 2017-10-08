@@ -1,5 +1,5 @@
 const assert = require('assert');
-const haiku = require('../src/haiku');
+const haiku = require('../src/validateHaiku');
 const { describe, it } = require('mocha');
 
 describe('Haiku', () => {
