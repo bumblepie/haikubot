@@ -1,0 +1,8 @@
+class Haiku {
+  constructor({ author, lines }) {
+    this.author = author;
+    this.lines = lines;
+  }
+}
+
+exports.Haiku = Haiku;

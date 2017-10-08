@@ -1,3 +1,4 @@
+const { Haiku } = require('./types/Haiku');
 const { isHaiku } = require('./validateHaiku');
 
 class ChannelProcessor {
@@ -17,7 +18,9 @@ class ChannelProcessor {
     if (this.messages.length === 3) {
       const lines = this.messages.map(message => message.content);
       if (isHaiku(lines)) {
-        this.onHaiku(this.messages);
+        const { author } = this.messages[2];
+        const haiku = new Haiku({ author, lines });
+        this.onHaiku(haiku);
       }
     }
   }
