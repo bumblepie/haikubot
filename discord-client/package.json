@@ -4,8 +4,8 @@
   "description": "A discord bot that detects haikus and persists them for later reference.",
   "main": "index.js",
   "scripts": {
-    "pretest": "eslint .",
-    "test": "mocha"
+    "test": "mocha",
+    "posttest": "eslint ."
   },
   "author": "Luke Wolyncewicz",
   "license": "ISC",
