@@ -21,6 +21,10 @@ class ChannelProcessor {
       }
     }
   }
+
+  setOnHaikuFunction(func) {
+    this.onHaiku = func;
+  }
 }
 
 exports.ChannelProcessor = ChannelProcessor;
