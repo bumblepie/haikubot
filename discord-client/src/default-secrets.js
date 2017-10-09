@@ -1,1 +1,1 @@
-exports.discordApiToken = 'Your token here'
+exports.discordApiToken = 'Your token here';
