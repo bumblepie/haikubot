@@ -16,11 +16,15 @@ client.on('message', (message) => {
   if(channelProcessorMap[channelID] == null) {
     const newChannelProcessor =  new ChannelProcessor(channelID);
     newChannelProcessor.setOnHaikuFunction((haiku) => {
+      console.log(
+        `Haiku triggered:
+        author: ${haiku.author}
+        lines: ${haiku.lines}`);
       channel.send(
-      `${haiku.author} has created a beautiful Haiku!
-      ${haiku.lines[0]}
-      ${haiku.lines[1]}
-      ${haiku.lines[2]}`);
+        `${haiku.author} has created a beautiful Haiku!
+        ${haiku.lines[0]}
+        ${haiku.lines[1]}
+        ${haiku.lines[2]}`);
     });
     channelProcessorMap[channelID] = newChannelProcessor;
   }
