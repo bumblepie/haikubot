@@ -6,12 +6,13 @@
   "scripts": {
     "test": "mocha",
     "posttest": "eslint .",
-    "start": "node src/bot" 
+    "start": "node src/bot"
   },
   "author": "Luke Wolyncewicz",
   "license": "ISC",
   "dependencies": {
     "discord.js": "^11.1.0",
+    "request": "^2.83.0",
     "syllable": "^2.2.0"
   },
   "devDependencies": {
