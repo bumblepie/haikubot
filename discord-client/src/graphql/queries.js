@@ -8,7 +8,7 @@ mutation createHaiku($haiku: HaikuInput) {
 }`;
 
 exports.getHaikuByIdQuery = `
-query getHaikuById($haikuId: String){
+query getHaikuById($haikuId: ID!){
   getHaiku(id: $haikuId) {
     id
     author
