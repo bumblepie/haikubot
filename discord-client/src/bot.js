@@ -23,30 +23,28 @@ client.on('message', (message) => {
         author: ${haiku.author}
         lines: ${haiku.lines}`);
 
-      const haikuInput = {
-        haiku: {
-          author: haiku.author.id,
-          lines: haiku.lines,
-        },
-      };
-
+      const requestBody = queryFactory.createHaikuMutation(haiku);
       const requestOptions = {
         method: 'POST',
         url: graphqlApiBaseUrl,
         json: true,
-        body: queryFactory.createHaikuMutation(haiku)
+        body: requestBody,
       };
 
       request(requestOptions, (err, res, body) => {
-        console.log(err);
-        console.log(body);
-        const responseHaiku = body.data.createHaiku;
-        console.log(responseHaiku);
-        channel.send(`<@${responseHaiku.author}> has created a beautiful Haiku!
-          "${responseHaiku.lines[0]}
-          ${responseHaiku.lines[1]}
-          ${responseHaiku.lines[2]}"
-           - Haiku #${responseHaiku.id}`);
+        if (err != null) {
+          console.log('Error saving haiku.');
+          console.log(` request body: ${JSON.stringify(requestBody)}`);
+          console.log(` err: ${err}`);
+          console.log(` response body: ${body}`);
+        } else {
+          const responseHaiku = body.data.createHaiku;
+          channel.send(`<@${responseHaiku.author}> has created a beautiful Haiku!
+            "${responseHaiku.lines[0]}
+            ${responseHaiku.lines[1]}
+            ${responseHaiku.lines[2]}"
+             - Haiku #${responseHaiku.id}`);
+        }
       });
     });
     channelProcessorMap[channelID] = newChannelProcessor;
