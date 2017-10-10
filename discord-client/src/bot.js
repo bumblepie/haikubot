@@ -1,6 +1,8 @@
 const Discord = require('discord.js');
+const request = require('request');
 const { ChannelProcessor } = require('./channelProcessor');
-const { discordApiToken } = require('./secrets.js');
+const { discordApiToken, graphqlApiBaseUrl } = require('./secrets');
+const queryFactory = require('./graphql/queryFactory');
 
 const client = new Discord.Client();
 
@@ -11,7 +13,7 @@ client.on('ready', () => {
 });
 
 client.on('message', (message) => {
-  const channel = { message };
+  const { channel } = message;
   const channelID = channel.id;
 
   if (channelProcessorMap[channelID] == null) {
@@ -21,10 +23,31 @@ client.on('message', (message) => {
         author: ${haiku.author}
         lines: ${haiku.lines}`);
 
-      channel.send(`${haiku.author} has created a beautiful Haiku!
-        ${haiku.lines[0]}
-        ${haiku.lines[1]}
-        ${haiku.lines[2]}`);
+      const haikuInput = {
+        haiku: {
+          author: haiku.author.id,
+          lines: haiku.lines,
+        },
+      };
+
+      const requestOptions = {
+        method: 'POST',
+        url: graphqlApiBaseUrl,
+        json: true,
+        body: queryFactory.createHaikuMutation(haiku)
+      };
+
+      request(requestOptions, (err, res, body) => {
+        console.log(err);
+        console.log(body);
+        const responseHaiku = body.data.createHaiku;
+        console.log(responseHaiku);
+        channel.send(`<@${responseHaiku.author}> has created a beautiful Haiku!
+          "${responseHaiku.lines[0]}
+          ${responseHaiku.lines[1]}
+          ${responseHaiku.lines[2]}"
+           - Haiku #${responseHaiku.id}`);
+      });
     });
     channelProcessorMap[channelID] = newChannelProcessor;
   }
