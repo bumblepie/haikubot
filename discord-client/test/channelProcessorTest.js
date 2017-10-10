@@ -56,7 +56,7 @@ describe('ChannelProcessor', () => {
       });
 
       const fiveAuthor = fiveSyllableMessage.author;
-      const expectedHaiku = new Haiku({ lines, author: fiveAuthor });
+      const expectedHaiku = new Haiku(null, { lines, author: fiveAuthor });
       assert.deepEqual(outputHaiku, expectedHaiku);
     });
 
