@@ -6,12 +6,12 @@ const { describe, it, beforeEach } = require('mocha');
 describe('ChannelProcessor', () => {
   const fiveSyllableMessage = {
     content: 'The first line has five.',
-    author: 'authorFive',
+    author: { id: 'authorFive' },
   };
 
   const sevenSyllableMessage = {
     content: 'The second line has seven.',
-    author: 'authorSeven',
+    author: { id: 'authorSeven' },
   };
 
   let onHaikuCalled = false;
@@ -56,7 +56,7 @@ describe('ChannelProcessor', () => {
       });
 
       const fiveAuthor = fiveSyllableMessage.author;
-      const expectedHaiku = new Haiku({ lines, author: fiveAuthor });
+      const expectedHaiku = new Haiku(null, { lines, author: fiveAuthor.id });
       assert.deepEqual(outputHaiku, expectedHaiku);
     });
 
