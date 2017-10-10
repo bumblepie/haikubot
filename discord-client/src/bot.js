@@ -2,6 +2,7 @@ const Discord = require('discord.js');
 const request = require('request');
 const { ChannelProcessor } = require('./channelProcessor');
 const { discordApiToken, graphqlApiBaseUrl } = require('./secrets');
+const { formatHaiku } = require('./formatHaiku');
 const queryFactory = require('./graphql/queryFactory');
 
 const client = new Discord.Client();
@@ -39,11 +40,7 @@ client.on('message', (message) => {
           console.log(` response body: ${body}`);
         } else {
           const responseHaiku = body.data.createHaiku;
-          channel.send(`<@${responseHaiku.author}> has created a beautiful Haiku!
-            "${responseHaiku.lines[0]}
-            ${responseHaiku.lines[1]}
-            ${responseHaiku.lines[2]}"
-             - Haiku #${responseHaiku.id}`);
+          channel.send(formatHaiku(responseHaiku));
         }
       });
     });
