@@ -19,7 +19,7 @@ class ChannelProcessor {
       const lines = this.messages.map(message => message.content);
       if (isHaiku(lines)) {
         const { author } = this.messages[2];
-        const haiku = new Haiku({ author, lines });
+        const haiku = new Haiku(null, { author, lines });
         this.onHaiku(haiku);
       }
     }
