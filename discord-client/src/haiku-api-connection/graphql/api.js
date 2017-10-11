@@ -3,6 +3,7 @@ const queryFactory = require('./queryFactory');
 const { graphqlApiBaseUrl } = require('../../secrets');
 
 exports.saveHaiku = (haiku) => {
+  let responseHaiku = null;
   const requestBody = queryFactory.createHaikuMutation(haiku);
   const requestOptions = {
     method: 'POST',
@@ -11,17 +12,21 @@ exports.saveHaiku = (haiku) => {
     body: requestBody,
   };
 
-  request(requestOptions, (err, res, body) => {
-    if (err != null) {
-      console.log('Error saving haiku.');
-      console.log(` request body: ${JSON.stringify(requestBody)}`);
-      console.log(` err: ${err}`);
-      console.log(` response body: ${body}`);
-    } else {
-      const responseHaiku = body.data.createHaiku;
-      channel.send(formatHaiku(responseHaiku));
-    }
-  });
+  return new Promise(function (resolve, reject) {
+    requestPromise(requestOptions)
+      .then((body) => {
+        const responseHaiku = body.data.createHaiku;
+        resolve(responseHaiku);
+      })
+      .catch((error) => {
+        console.log('Error saving haiku.');
+        console.log(` request body: ${JSON.stringify(requestBody)}`);
+        console.log(` err: ${err}`);
+        console.log(` response body: ${body}`);
+        reject('Error saving haiku');
+      });
+    });
+
 }
 
 exports.getHaikuById = (haikuId) => {
@@ -32,17 +37,17 @@ exports.getHaikuById = (haikuId) => {
     json: true,
     body: requestBody,
   };
-  console.log(JSON.stringify(requestOptions));
-  request(requestOptions, (err, res, body) => {
-    if (err != null) {
-      console.log('Error fetching haiku.');
-      console.log(` request body: ${JSON.stringify(requestBody)}`);
-      console.log(` err: ${err}`);
-      console.log(` response body: ${body}`);
-    } else {
-      console.log(` response body: ${JSON.stringify(body)}`);
-      const responseHaiku = body.data.getHaiku;
-      channel.send(formatHaiku(responseHaiku));
-    }
-  });
+  return new Promise((resolve, reject) => {
+    requestPromise(requestOptions)
+      .then((body) => {
+        const responseHaiku = body.data.getHaiku;
+        resolve(responseHaiku);
+      })
+      .catch((error) => {
+        console.log('Error fetching haiku.');
+        console.log(` request body: ${JSON.stringify(requestBody)}`);
+        console.log(` err: ${err}`);
+        console.log(` response body: ${body}`);
+      });
+    });
 }
