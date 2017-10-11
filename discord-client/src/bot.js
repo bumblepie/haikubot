@@ -21,7 +21,12 @@ const processMessage = (message) => {
       console.log(`Haiku triggered:
         author: ${haiku.author}
         lines: ${haiku.lines}`);
-      api.saveHaiku(haiku).then(responseHaiku => channel.send(formatHaiku(responseHaiku)));
+      api.saveHaiku(haiku)
+        .then(responseHaiku => channel.send(formatHaiku(responseHaiku)))
+        .catch((error) => {
+          console.log(`Caught error ${error} while saving haiku, ignoring...`);
+          console.log('Failed to save haiku.');
+        });
     });
     channelProcessorMap[channelID] = newChannelProcessor;
   }
@@ -48,7 +53,7 @@ client.on('message', (message) => {
       commands.tryCommand(context, splitContent);
     } catch (err) {
       console.log(`Error while processing command: ${err}`);
-      message.channel.send(err);
+      message.channel.send(err.message);
     }
   } else {
     processMessage(message);

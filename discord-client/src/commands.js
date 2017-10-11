@@ -4,8 +4,10 @@ const commandMap = {};
 
 commandMap.getHaikuById = (context, id) => {
   context.api.getHaikuById(id)
-    .then((responseHaiku) => {
-      context.channel.send(formatHaiku(responseHaiku));
+    .then(responseHaiku => context.channel.send(formatHaiku(responseHaiku)))
+    .catch((error) => {
+      console.log(`Caught error ${error}, sending simplified error message to discord`);
+      context.channel.send(`An error occurred while fetching haiku ${id}`);
     });
 };
 
