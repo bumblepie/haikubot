@@ -45,7 +45,12 @@ client.on('message', (message) => {
       api,
       channel: message.channel,
     }
-    commands.tryCommand(context, splitContent);
+    try {
+      commands.tryCommand(context, splitContent);
+    } catch(err) {
+      console.log(`Error while processing command: ${err}`);
+      message.channel.send(err);
+    }
   } else {
     processMessage(message);
   }
