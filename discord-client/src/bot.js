@@ -1,19 +1,17 @@
 const Discord = require('discord.js');
-const request = require('request');
 const { ChannelProcessor } = require('./channelProcessor');
 const { discordApiToken, graphqlApiBaseUrl } = require('./secrets');
 const { formatHaiku } = require('./formatHaiku');
-const queryFactory = require('./graphql/queryFactory');
+const commands = require('./commands');
+const apiFactory = require('./haiku-api-connection/apiFactory');
 
+const api = apiFactory.createGraphqlApi(graphqlApiBaseUrl);
 const client = new Discord.Client();
 
 const channelProcessorMap = {};
+const commandPrefix = '!';
 
-client.on('ready', () => {
-  console.log('Bot is ready');
-});
-
-client.on('message', (message) => {
+const processMessage = (message) => {
   const { channel } = message;
   const channelID = channel.id;
 
@@ -23,31 +21,43 @@ client.on('message', (message) => {
       console.log(`Haiku triggered:
         author: ${haiku.author}
         lines: ${haiku.lines}`);
-
-      const requestBody = queryFactory.createHaikuMutation(haiku);
-      const requestOptions = {
-        method: 'POST',
-        url: graphqlApiBaseUrl,
-        json: true,
-        body: requestBody,
-      };
-
-      request(requestOptions, (err, res, body) => {
-        if (err != null) {
-          console.log('Error saving haiku.');
-          console.log(` request body: ${JSON.stringify(requestBody)}`);
-          console.log(` err: ${err}`);
-          console.log(` response body: ${body}`);
-        } else {
-          const responseHaiku = body.data.createHaiku;
-          channel.send(formatHaiku(responseHaiku));
-        }
-      });
+      api.saveHaiku(haiku)
+        .then(responseHaiku => channel.send(formatHaiku(responseHaiku)))
+        .catch((error) => {
+          console.log(`Caught error ${error} while saving haiku, ignoring...`);
+          console.log('Failed to save haiku.');
+        });
     });
     channelProcessorMap[channelID] = newChannelProcessor;
   }
 
   channelProcessorMap[channelID].processMessage(message);
+};
+
+client.on('ready', () => {
+  console.log('Bot is ready');
+});
+
+client.on('message', (message) => {
+  const { content } = message;
+  if (content.startsWith(commandPrefix)) {
+    const trimmedContent = content.substring(commandPrefix.length);
+    // split by whitespace
+    const splitContent = trimmedContent.split(/\s+/);
+    const context = {
+      api,
+      channel: message.channel,
+    };
+
+    try {
+      commands.tryCommand(context, splitContent);
+    } catch (err) {
+      console.log(`Error while processing command: ${err}`);
+      message.channel.send(err.message);
+    }
+  } else {
+    processMessage(message);
+  }
 });
 
 client.login(discordApiToken);

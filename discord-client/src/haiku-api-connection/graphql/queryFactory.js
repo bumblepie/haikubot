@@ -10,3 +10,11 @@ exports.createHaikuMutation = haiku => (
       },
     },
   });
+
+exports.getHaikuByIdQuery = haikuId => (
+  {
+    query: queries.getHaikuByIdQuery,
+    variables: {
+      haikuId,
+    },
+  });
