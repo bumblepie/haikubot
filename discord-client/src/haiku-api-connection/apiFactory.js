@@ -1,1 +1,2 @@
-exports.graphqlApi = require('./graphql/api');
+const { GraphqlApi } = require('./graphql/api');
+exports.createGraphqlApi = baseUrl => new GraphqlApi(baseUrl);

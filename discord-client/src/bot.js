@@ -1,10 +1,11 @@
 const Discord = require('discord.js');
 const { ChannelProcessor } = require('./channelProcessor');
-const { discordApiToken } = require('./secrets');
+const { discordApiToken, graphqlApiBaseUrl } = require('./secrets');
 const { formatHaiku } = require('./formatHaiku');
 const commands = require('./commands');
-const api = require('./haiku-api-connection/apiFactory').graphqlApi;
+const apiFactory = require('./haiku-api-connection/apiFactory');
 
+const api = apiFactory.createGraphqlApi(graphqlApiBaseUrl);
 const client = new Discord.Client();
 
 const channelProcessorMap = {};
@@ -40,7 +41,11 @@ client.on('message', (message) => {
     const trimmedContent = content.substring(commandPrefix.length);
     //split by whitespace
     const splitContent = trimmedContent.split(/\s+/);
-    commands.tryCommand(message.channel, splitContent);
+    const context = {
+      api,
+      channel: message.channel,
+    }
+    commands.tryCommand(context, splitContent);
   } else {
     processMessage(message);
   }

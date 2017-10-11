@@ -1,22 +1,20 @@
-const api = require('./haiku-api-connection/apiFactory').graphqlApi;
 const { formatHaiku } = require('./formatHaiku');
 
 const commandMap = {};
 
-commandMap['getHaikuById'] = (channel, id) => {
-  api.getHaikuById(id)
+commandMap['getHaikuById'] = (context, id) => {
+  context.api.getHaikuById(id)
     .then((responseHaiku) => {
-      channel.send(formatHaiku(responseHaiku));
+      context.channel.send(formatHaiku(responseHaiku));
     });
 };
 
-exports.tryCommand = (channel, args) => {
+exports.tryCommand = (context, args) => {
   const commandName = args[0];
   const commandArgs = args.slice(1);
-
-  if (commandMap[commandName] === null) {
+  if (!(commandName in commandMap)) {
     throw `Could not find command ${commandName}`;
   } else {
-    commandMap[commandName](channel, commandArgs);
+    commandMap[commandName](context, commandArgs);
   }
 }
