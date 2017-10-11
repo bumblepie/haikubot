@@ -21,9 +21,7 @@ const processMessage = (message) => {
       console.log(`Haiku triggered:
         author: ${haiku.author}
         lines: ${haiku.lines}`);
-        api.saveHaiku(haiku).then(responseHaiku => {
-          channel.send(formatHaiku(responseHaiku));
-        });
+      api.saveHaiku(haiku).then(responseHaiku => channel.send(formatHaiku(responseHaiku)));
     });
     channelProcessorMap[channelID] = newChannelProcessor;
   }
@@ -39,15 +37,16 @@ client.on('message', (message) => {
   const { content } = message;
   if (content.startsWith(commandPrefix)) {
     const trimmedContent = content.substring(commandPrefix.length);
-    //split by whitespace
+    // split by whitespace
     const splitContent = trimmedContent.split(/\s+/);
     const context = {
       api,
       channel: message.channel,
-    }
+    };
+
     try {
       commands.tryCommand(context, splitContent);
-    } catch(err) {
+    } catch (err) {
       console.log(`Error while processing command: ${err}`);
       message.channel.send(err);
     }
