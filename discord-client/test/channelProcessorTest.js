@@ -56,7 +56,10 @@ describe('ChannelProcessor', () => {
       });
 
       const fiveAuthor = fiveSyllableMessage.author;
-      const expectedHaiku = new Haiku(null, { lines, author: fiveAuthor.id });
+      const sevenAuthor = sevenSyllableMessage.author;
+
+      //filters out second occurence of fiveauthor, but keeps both authors as they are unique
+      const expectedHaiku = new Haiku(null, { lines, authors: [fiveAuthor.id, sevenAuthor.id] });
       assert.deepEqual(outputHaiku, expectedHaiku);
     });
 

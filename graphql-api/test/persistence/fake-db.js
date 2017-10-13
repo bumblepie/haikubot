@@ -3,12 +3,12 @@ const { FakeDB } = require('../../src/persistence/fake-db.js');
 const { describe, it, beforeEach } = require('mocha');
 
 const exampleHaiku = {
-  author: 'author',
+  authors: ['author'],
   lines: ['line1', 'line2', 'line3'],
 };
 
 const exampleHaiku2 = {
-  author: 'author_2',
+  authors: ['author_2', 'author_3'],
   lines: ['line4', 'line5', 'line6'],
 };
 
@@ -73,16 +73,16 @@ describe('fake-db', () => {
     it('should create a haiku that can be recieved by #getHaiku', () => {
       const createResult = repo.createHaiku(exampleHaiku);
       const getResult = repo.getHaiku(createResult.id);
-      assert(getResult.author === exampleHaiku.author);
+      assert(getResult.authors === exampleHaiku.authors);
       assert(getResult.lines === exampleHaiku.lines);
     });
 
     it('should return the created haiku (consistent with #getHaiku)', () => {
       const createResult = repo.createHaiku(exampleHaiku);
-      assert(createResult.author === exampleHaiku.author);
+      assert(createResult.authors === exampleHaiku.authors);
       assert(createResult.lines === exampleHaiku.lines);
       const getResult = repo.getHaiku(createResult.id);
-      assert(getResult.author === exampleHaiku.author);
+      assert(getResult.authors === exampleHaiku.authors);
       assert(getResult.lines === exampleHaiku.lines);
     });
 
@@ -97,7 +97,7 @@ describe('fake-db', () => {
     it('should return a haiku that has been inserted into the fake db', () => {
       const createResult = repo.createHaiku(exampleHaiku);
       const getResult = repo.getHaiku(createResult.id);
-      assert(getResult.author === exampleHaiku.author);
+      assert(getResult.authors === exampleHaiku.authors);
       assert(getResult.lines === exampleHaiku.lines);
     });
 
@@ -105,11 +105,11 @@ describe('fake-db', () => {
       const createResult = repo.createHaiku(exampleHaiku);
       const createResult2 = repo.createHaiku(exampleHaiku2);
       let getResult = repo.getHaiku(createResult.id);
-      assert(getResult.author === exampleHaiku.author);
+      assert(getResult.authors === exampleHaiku.authors);
       assert(getResult.lines === exampleHaiku.lines);
 
       getResult = repo.getHaiku(createResult2.id);
-      assert(getResult.author === exampleHaiku2.author);
+      assert(getResult.authors === exampleHaiku2.authors);
       assert(getResult.lines === exampleHaiku2.lines);
     });
 

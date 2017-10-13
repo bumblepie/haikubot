@@ -18,7 +18,7 @@ describe('commands', () => {
     let channelOutput = '';
     const testId = '0';
     const haiku = new Haiku(testId, {
-      author: 'author',
+      authors: ['author'],
       lines: ['line1', 'line2', 'line3'],
     });
 
