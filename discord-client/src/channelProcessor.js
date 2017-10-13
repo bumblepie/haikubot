@@ -17,9 +17,10 @@ class ChannelProcessor {
 
     if (this.messages.length === 3) {
       const lines = this.messages.map(message => message.content);
+      const authors = this.messages.map(message => message.author.id);
+      const uniqueAuthors = Array.from(new Set(authors));
       if (isHaiku(lines)) {
-        const author = this.messages[2].author.id;
-        const haiku = new Haiku(null, { author, lines });
+        const haiku = new Haiku(null, { authors: uniqueAuthors, lines });
         this.onHaiku(haiku);
       }
     }

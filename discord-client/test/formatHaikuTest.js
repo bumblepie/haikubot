@@ -6,7 +6,7 @@ const { describe, it } = require('mocha');
 describe('formatHaiku', () => {
   describe('#formatHaiku', () => {
     it('should correctly format a haiku', () => {
-      const haiku = new Haiku('id', { author: 'author', lines: ['line 1', 'line 2', 'line 3'] });
+      const haiku = new Haiku('id', { authors: ['author'], lines: ['line 1', 'line 2', 'line 3'] });
       const expected =
       '<@author> has created a beautiful Haiku!\n' +
       '"line 1\n' +

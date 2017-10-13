@@ -5,7 +5,7 @@ exports.createHaikuMutation = haiku => (
     query: queries.createHaikuMutation,
     variables: {
       haiku: {
-        author: haiku.author,
+        authors: haiku.authors,
         lines: haiku.lines,
       },
     },

@@ -1,7 +1,7 @@
 class Haiku {
-  constructor(id, { author, lines }) {
+  constructor(id, { authors, lines }) {
     this.id = id;
-    this.author = author;
+    this.authors = authors;
     this.lines = lines;
   }
 }
