@@ -2,7 +2,7 @@
 mutation createHaiku($haiku: HaikuInput) {
 	createHaiku(haiku: $haiku) {
     id
-    author
+    authors
     lines
   }
 }
@@ -11,6 +11,6 @@ mutation createHaiku($haiku: HaikuInput) {
 {
   "haiku": {
   	"lines": ["xxx", "yyy", "zzz"],
-    "author": "Author"
+    "authors": ["Author"]
   }
 }

@@ -13,12 +13,12 @@ const schema = buildSchema(`
   type Haiku {
     id: ID!
     lines: [String!]
-    author: String
+    authors: [String!]
   }
 
   input HaikuInput {
     lines: [String!]
-    author: String
+    authors: [String!]
   }
 `);
 
