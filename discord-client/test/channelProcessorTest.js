@@ -14,6 +14,16 @@ describe('ChannelProcessor', () => {
     author: { id: 'authorSeven' },
   };
 
+  const fullHaikuMessage = {
+    content: 'The first line has five.\n The second line has seven.\n The third line has five.',
+    author: { id: 'authorFull' },
+  };
+
+  const fiveSplitSyllableMessage = {
+    content: 'The first line \nhas five.',
+    author: { id: 'authorFive' },
+  };
+
   let onHaikuCalled = false;
   let outputHaiku = null;
   let defaultProcessor;
@@ -41,6 +51,22 @@ describe('ChannelProcessor', () => {
       assert.ok(onHaikuCalled);
     });
 
+    it('should correctly split and recognise a full haiku message', () => {
+      assert.ok(!onHaikuCalled);
+      defaultProcessor.processMessage(fullHaikuMessage);
+      assert.ok(onHaikuCalled);
+    });
+
+    it('should correctly split and NOT recognise a haiku where a message is separated by newline', () => {
+      assert.ok(!onHaikuCalled);
+
+      defaultProcessor.processMessage(fiveSyllableMessage);
+      defaultProcessor.processMessage(sevenSyllableMessage);
+      defaultProcessor.processMessage(fiveSplitSyllableMessage);
+
+      assert.ok(!onHaikuCalled);
+    });
+
     it('should create a Haiku instance and pass it as the argument to onHaikuCalled', () => {
       assert.equal(outputHaiku, null);
 
@@ -58,7 +84,7 @@ describe('ChannelProcessor', () => {
       const fiveAuthor = fiveSyllableMessage.author;
       const sevenAuthor = sevenSyllableMessage.author;
 
-      //filters out second occurence of fiveauthor, but keeps both authors as they are unique
+      // filters out second occurence of fiveauthor, but keeps both authors as they are unique
       const expectedHaiku = new Haiku(null, { lines, authors: [fiveAuthor.id, sevenAuthor.id] });
       assert.deepEqual(outputHaiku, expectedHaiku);
     });

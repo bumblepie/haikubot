@@ -8,7 +8,16 @@ class ChannelProcessor {
     this.onHaiku = () => {};
   }
 
-  processMessage(newMessage) {
+  processMessage(fullMessage) {
+    const splitMessages = fullMessage.content.split('\n')
+      .map(content => ({
+        content,
+        author: fullMessage.author,
+      }));
+    splitMessages.forEach(message => this.processSplitMessage(message));
+  }
+
+  processSplitMessage(newMessage) {
     this.messages.push(newMessage);
     while (this.messages.length > 3) {
       // remove old messages
