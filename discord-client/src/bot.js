@@ -19,7 +19,7 @@ const processMessage = (message) => {
     const newChannelProcessor = new ChannelProcessor(channelID);
     newChannelProcessor.setOnHaikuFunction((haiku) => {
       console.log(`Haiku triggered:
-        author: ${haiku.author}
+        authors: ${haiku.authors}
         lines: ${haiku.lines}`);
       api.saveHaiku(haiku)
         .then(responseHaiku => channel.send(formatHaiku(responseHaiku)))
@@ -39,6 +39,11 @@ client.on('ready', () => {
 });
 
 client.on('message', (message) => {
+  if(message.author.id === client.user.id) {
+    // Ignore own messages
+    return;
+  }
+
   const { content } = message;
   if (content.startsWith(commandPrefix)) {
     const trimmedContent = content.substring(commandPrefix.length);
