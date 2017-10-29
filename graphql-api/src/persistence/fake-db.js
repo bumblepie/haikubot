@@ -28,6 +28,14 @@ class FakeDB {
   clearAllHaikus() {
     this.haikuMap = {};
   }
+
+  getChannel(id) {
+    return { id };
+  }
+
+  getServer(id) {
+    return { id };
+  }
 }
 
 exports.FakeDB = FakeDB;
