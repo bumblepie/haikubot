@@ -1,5 +1,4 @@
 const { schema } = require('./schema');
-const { root } = require('./resolvers');
 const express = require('express');
 const graphqlHTTP = require('express-graphql');
 const { FakeDB } = require('./persistence/fake-db');
