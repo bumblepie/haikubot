@@ -1,4 +1,4 @@
-const { Haiku } = require('../types/Haiku');
+const { Haiku } = require('../domain/types/Haiku');
 
 class FakeDB {
   constructor() {
