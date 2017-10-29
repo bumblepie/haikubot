@@ -17,7 +17,6 @@ class FakeDB {
     if (!this.haikuMap[id]) {
       throw new Error(`No haiku with id ${id} found`);
     }
-
     return new Haiku(id, this.haikuMap[id]);
   }
 

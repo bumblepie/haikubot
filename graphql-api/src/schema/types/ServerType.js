@@ -1,12 +1,12 @@
-const { GraphQLID, GraphQLObjectType } = require('graphql')
+const { GraphQLID, GraphQLObjectType } = require('graphql');
 
 const ServerType = new GraphQLObjectType({
   name: 'Server',
   fields: () => ({
     id: {
-      type: GraphQLID
-    }
-  })
+      type: GraphQLID,
+    },
+  }),
 });
 
 exports.ServerType = ServerType;

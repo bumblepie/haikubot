@@ -9,15 +9,11 @@ const queryType = new GraphQLObjectType({
     getHaiku: {
       type: HaikuType,
       args: {
-        id: { type: GraphQLString }
+        id: { type: GraphQLString },
       },
-      resolve: function (_, { id }, context) {
-        console.log(id);
-        console.log(context);
-        return context.repo.getHaiku(id);
-      }
-    }
-  }
+      resolve: (_, { id }, context) => context.repo.getHaiku(id),
+    },
+  },
 });
 
 const mutationType = new GraphQLObjectType({
@@ -26,15 +22,13 @@ const mutationType = new GraphQLObjectType({
     createHaiku: {
       type: HaikuType,
       args: {
-        haikuInput: { type: HaikuInput }
+        haikuInput: { type: HaikuInput },
       },
-      resolve: function (_, { haikuInput }, context) {
-        return context.repo.createHaiku(haikuInput);
-      }
-    }
-  }
+      resolve: (_, { haikuInput }, context) => context.repo.createHaiku(haikuInput),
+    },
+  },
 });
 
-const schema = new GraphQLSchema({query: queryType, mutation: mutationType});
+const schema = new GraphQLSchema({ query: queryType, mutation: mutationType });
 
 exports.schema = schema;

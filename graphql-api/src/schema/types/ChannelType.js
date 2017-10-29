@@ -1,12 +1,12 @@
-const { GraphQLID, GraphQLObjectType } = require('graphql')
+const { GraphQLID, GraphQLObjectType } = require('graphql');
 
 const ChannelType = new GraphQLObjectType({
   name: 'Channel',
   fields: () => ({
     id: {
-      type: GraphQLID
-    }
-  })
+      type: GraphQLID,
+    },
+  }),
 });
 
 exports.ChannelType = ChannelType;

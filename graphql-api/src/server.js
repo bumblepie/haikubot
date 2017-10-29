@@ -9,7 +9,7 @@ const app = express();
 app.use('/graphql', graphqlHTTP({
   schema,
   graphiql: true,
-  context: { repo }
+  context: { repo },
 }));
 
 app.listen(4000);

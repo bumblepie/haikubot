@@ -1,21 +1,21 @@
-const { GraphQLList, GraphQLInputObjectType, GraphQLString } = require('graphql')
+const { GraphQLList, GraphQLInputObjectType, GraphQLString } = require('graphql');
 
 const HaikuInput = new GraphQLInputObjectType({
   name: 'HaikuInput',
   fields: () => ({
     server: {
-      type: GraphQLString
+      type: GraphQLString,
     },
     channel: {
-      type: GraphQLString
+      type: GraphQLString,
     },
     lines: {
-      type: new GraphQLList(GraphQLString)
+      type: new GraphQLList(GraphQLString),
     },
     authors: {
-      type: new GraphQLList(GraphQLString)
-    }
-  })
+      type: new GraphQLList(GraphQLString),
+    },
+  }),
 });
 
-exports.HaikuInput = HaikuInput
+exports.HaikuInput = HaikuInput;
