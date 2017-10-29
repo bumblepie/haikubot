@@ -6,11 +6,11 @@ class FakeDB {
     this.haikuMap = {};
   }
 
-  createHaiku(haiku) {
+  createHaiku(haikuInput) {
     const id = this.count;
     this.count += 1;
-    this.haikuMap[id] = haiku;
-    return new Haiku(id, haiku);
+    this.haikuMap[id] = haikuInput;
+    return new Haiku(id, haikuInput);
   }
 
   getHaiku(id) {

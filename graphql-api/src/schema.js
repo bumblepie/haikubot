@@ -7,7 +7,7 @@ const schema = buildSchema(`
   }
 
   type Mutation {
-    createHaiku(haiku: HaikuInput): Haiku
+    createHaiku(haikuInput: HaikuInput): Haiku
   }
 
   type Haiku {

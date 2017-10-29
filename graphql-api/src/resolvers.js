@@ -7,8 +7,8 @@ const root = {
     return repo.getHaiku(id);
   },
 
-  createHaiku({ haiku }) {
-    return repo.createHaiku(haiku);
+  createHaiku({ haikuInput }) {
+    return repo.createHaiku(haikuInput);
   },
 
 };
