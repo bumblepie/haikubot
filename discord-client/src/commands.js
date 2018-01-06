@@ -11,7 +11,7 @@ commandMap.getHaikuById = (context, args) => {
   return context.api.getHaikuById(serverId, id)
     .then(responseHaiku => context.channel.send(formatHaiku(responseHaiku)))
     .catch((error) => {
-      console.log(`Caught error ${error}, sending simplified error message to discord`);
+      console.log(`Caught error ${JSON.stringify(error)}, sending simplified error message to discord`);
       context.channel.send(`An error occurred while fetching haiku ${id}`);
     });
 };

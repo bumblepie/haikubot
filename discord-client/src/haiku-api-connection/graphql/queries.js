@@ -1,6 +1,6 @@
 exports.createHaikuMutation = `
 mutation createHaiku($haiku: HaikuInput) {
-	createHaiku(haikuInput: $haiku) {
+  createHaiku(haikuInput: $haiku) {
     id
     authors
     lines
@@ -8,8 +8,8 @@ mutation createHaiku($haiku: HaikuInput) {
 }`;
 
 exports.getHaikuByIdQuery = `
-query getHaikuById($haikuId: ID!){
-  getHaiku(id: $haikuId) {
+query getHaikuById($serverId: String!, $haikuId: String!){
+  getHaiku(serverId: $serverId, id: $haikuId) {
     id
     authors
     lines

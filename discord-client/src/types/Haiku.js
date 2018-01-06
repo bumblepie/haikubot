@@ -1,5 +1,10 @@
 class Haiku {
-  constructor(id, { authors, lines, serverId, channelId }) {
+  constructor(id, {
+    authors,
+    lines,
+    serverId,
+    channelId,
+  }) {
     this.id = id;
     this.authors = authors;
     this.lines = lines;
