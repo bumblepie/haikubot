@@ -18,16 +18,30 @@ describe('commands', () => {
     let channelOutput = '';
     const testId = '0';
     const testServerId = 'testServer';
+    const testServer2Id = 'testServer2';
     const haiku = new Haiku(testId, {
       authors: ['author'],
       lines: ['line1', 'line2', 'line3'],
+      channelId: 'channel1',
+      serverId: testServerId,
+    });
+    const haiku2 = new Haiku(testId, {
+      authors: ['author'],
+      lines: ['line4', 'line5', 'line6'],
+      channelId: 'channel2',
+      serverId: testServer2Id,
     });
 
     const context = {
       api: {
         getHaikuById: (serverId, id) => new Promise((resolve, reject) => {
-          if (serverId === testServerId && id === testId) {
+          if (id !== testId) {
+            reject(new Error(`Test error - serverId: ${serverId}, id: ${id}`));
+          }
+          if (serverId === testServerId) {
             resolve(haiku);
+          } else if (serverId === testServer2Id) {
+            resolve(haiku2);
           } else {
             reject(new Error(`Test error - serverId: ${serverId}, id: ${id}`));
           }
@@ -51,6 +65,19 @@ describe('commands', () => {
       const args = ['getHaikuById', testId];
       await commands.tryCommand(context, args);
       const expectedOutput = formatHaiku(haiku);
+      assert.equal(channelOutput, expectedOutput);
+    });
+
+    it('should send a the correct message when called in a different server', async () => {
+      const args = ['getHaikuById', testId];
+      const context2 = context;
+      context2.server = {
+        id: testServer2Id,
+      };
+      console.log(context2);
+      console.log(args);
+      await commands.tryCommand(context2, args);
+      const expectedOutput = formatHaiku(haiku2);
       assert.equal(channelOutput, expectedOutput);
     });
 
