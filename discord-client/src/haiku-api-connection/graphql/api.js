@@ -18,13 +18,16 @@ class GraphqlApi {
     return new Promise((resolve, reject) => {
       requestPromise(requestOptions)
         .then((body) => {
+          if ('errors' in body) {
+            throw body.errors;
+          }
           const responseHaiku = body.data.createHaiku;
           resolve(responseHaiku);
         })
         .catch((error) => {
           console.log('Error saving haiku.');
           console.log(` request body: ${JSON.stringify(requestBody)}`);
-          console.log(` error: ${error}`);
+          console.log(` error: ${JSON.stringify(error)}`);
           reject(error);
         });
     });

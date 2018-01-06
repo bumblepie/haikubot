@@ -24,7 +24,7 @@ const processMessage = (message) => {
       api.saveHaiku(haiku)
         .then(responseHaiku => channel.send(formatHaiku(responseHaiku)))
         .catch((error) => {
-          console.log(`Caught error ${error} while saving haiku, ignoring...`);
+          console.log(`Caught error ${JSON.stringify(error)} while saving haiku, ignoring...`);
           console.log('Failed to save haiku.');
         });
     });
