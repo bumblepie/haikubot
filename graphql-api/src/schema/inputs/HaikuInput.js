@@ -3,10 +3,10 @@ const { GraphQLList, GraphQLInputObjectType, GraphQLString } = require('graphql'
 const HaikuInput = new GraphQLInputObjectType({
   name: 'HaikuInput',
   fields: () => ({
-    server: {
+    serverId: {
       type: GraphQLString,
     },
-    channel: {
+    channelId: {
       type: GraphQLString,
     },
     lines: {

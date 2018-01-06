@@ -1,5 +1,5 @@
 {
-	getHaiku(id: "xxx") {
+	getHaiku(serverId: "server1", id: "haiku01") {
     id
     authors
     lines

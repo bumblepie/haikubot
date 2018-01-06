@@ -9,9 +9,10 @@ const queryType = new GraphQLObjectType({
     getHaiku: {
       type: HaikuType,
       args: {
+        serverId: { type: GraphQLString },
         id: { type: GraphQLString },
       },
-      resolve: (_, { id }, context) => context.repo.getHaiku(id),
+      resolve: (_, { serverId, id }, context) => context.repo.getHaiku(serverId, id),
     },
   },
 });
