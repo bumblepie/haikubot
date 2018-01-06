@@ -1,4 +1,9 @@
-const { GraphQLList, GraphQLObjectType, GraphQLString } = require('graphql');
+const {
+  GraphQLList,
+  GraphQLObjectType,
+  GraphQLString,
+  GraphQLNonNull,
+} = require('graphql');
 const { ServerType } = require('./ServerType');
 const { ChannelType } = require('./ChannelType');
 
@@ -6,7 +11,7 @@ const HaikuType = new GraphQLObjectType({
   name: 'Haiku',
   fields: () => ({
     id: {
-      type: GraphQLString,
+      type: new GraphQLNonNull(GraphQLString),
     },
     server: {
       type: ServerType,
@@ -17,10 +22,10 @@ const HaikuType = new GraphQLObjectType({
       resolve: (haiku, _, context) => context.repo.getChannel(haiku.channel),
     },
     lines: {
-      type: new GraphQLList(GraphQLString),
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLString))),
     },
     authors: {
-      type: new GraphQLList(GraphQLString),
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLString))),
     },
   }),
 });
