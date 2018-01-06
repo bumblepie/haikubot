@@ -17,6 +17,7 @@ describe('commands', () => {
   describe('#getHaikuById', () => {
     let channelOutput = '';
     const testId = '0';
+    const testServerId = 'testServer';
     const haiku = new Haiku(testId, {
       authors: ['author'],
       lines: ['line1', 'line2', 'line3'],
@@ -24,11 +25,11 @@ describe('commands', () => {
 
     const context = {
       api: {
-        getHaikuById: id => new Promise((resolve, reject) => {
-          if (id === testId) {
+        getHaikuById: (serverId, id) => new Promise((resolve, reject) => {
+          if (serverId === testServerId && id === testId) {
             resolve(haiku);
           } else {
-            reject(new Error('test error'));
+            reject(new Error(`Test error - serverId: ${serverId}, id: ${id}`));
           }
         }),
       },
@@ -36,6 +37,9 @@ describe('commands', () => {
         send: (output) => {
           channelOutput += output;
         },
+      },
+      server: {
+        id: testServerId,
       },
     };
 

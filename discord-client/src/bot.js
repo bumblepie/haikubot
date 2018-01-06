@@ -52,6 +52,7 @@ client.on('message', (message) => {
     const context = {
       api,
       channel: message.channel,
+      server: message.guild,
     };
 
     try {
