@@ -33,10 +33,13 @@ describe('ChannelProcessor', () => {
     outputHaiku = haiku;
   };
 
+  const serverId = 'server1';
+  const channelId = 'channel1'
+
   beforeEach(() => {
     onHaikuCalled = false;
     outputHaiku = null;
-    defaultProcessor = new ChannelProcessor('channelID');
+    defaultProcessor = new ChannelProcessor(serverId, channelId);
     defaultProcessor.setOnHaikuFunction(haikuFunction);
   });
 
@@ -85,7 +88,7 @@ describe('ChannelProcessor', () => {
       const sevenAuthor = sevenSyllableMessage.author;
 
       // filters out second occurence of fiveauthor, but keeps both authors as they are unique
-      const expectedHaiku = new Haiku(null, { lines, authors: [fiveAuthor.id, sevenAuthor.id] });
+      const expectedHaiku = new Haiku(null, { lines, authors: [fiveAuthor.id, sevenAuthor.id], serverId, channelId });
       assert.deepEqual(outputHaiku, expectedHaiku);
     });
 
