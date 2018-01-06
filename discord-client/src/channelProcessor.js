@@ -2,7 +2,8 @@ const { Haiku } = require('./types/Haiku');
 const { isHaiku } = require('./validateHaiku');
 
 class ChannelProcessor {
-  constructor(channelID) {
+  constructor(serverID, channelID) {
+    this.serverID = serverID;
     this.channelID = channelID;
     this.messages = [];
     this.onHaiku = () => {};
@@ -29,7 +30,12 @@ class ChannelProcessor {
       const authors = this.messages.map(message => message.author.id);
       const uniqueAuthors = Array.from(new Set(authors));
       if (isHaiku(lines)) {
-        const haiku = new Haiku(null, { authors: uniqueAuthors, lines });
+        const haiku = new Haiku(null, {
+          authors: uniqueAuthors,
+          lines,
+          serverId: this.serverID,
+          channelId: this.channelID,
+        });
         this.onHaiku(haiku);
       }
     }

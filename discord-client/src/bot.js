@@ -13,14 +13,17 @@ const commandPrefix = '!';
 
 const processMessage = (message) => {
   const { channel } = message;
+  const serverID = channel.guild.id;
   const channelID = channel.id;
 
   if (channelProcessorMap[channelID] == null) {
-    const newChannelProcessor = new ChannelProcessor(channelID);
+    const newChannelProcessor = new ChannelProcessor(serverID, channelID);
     newChannelProcessor.setOnHaikuFunction((haiku) => {
       console.log(`Haiku triggered:
         authors: ${haiku.authors}
-        lines: ${haiku.lines}`);
+        lines: ${haiku.lines},
+        serverId: ${haiku.serverId},
+        channelId: ${haiku.channelId}`);
       api.saveHaiku(haiku)
         .then(responseHaiku => channel.send(formatHaiku(responseHaiku)))
         .catch((error) => {

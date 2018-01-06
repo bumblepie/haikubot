@@ -7,6 +7,8 @@ exports.createHaikuMutation = haiku => (
       haiku: {
         authors: haiku.authors,
         lines: haiku.lines,
+        serverId: haiku.serverId,
+        channelId: haiku.channelId,
       },
     },
   });
