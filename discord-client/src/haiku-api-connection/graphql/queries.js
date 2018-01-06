@@ -1,6 +1,6 @@
 exports.createHaikuMutation = `
 mutation createHaiku($haiku: HaikuInput) {
-  createHaiku(haiku: $haiku) {
+	createHaiku(haikuInput: $haiku) {
     id
     authors
     lines
