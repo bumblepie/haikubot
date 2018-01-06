@@ -7,10 +7,11 @@ commandMap.getHaikuById = (context, args) => {
     throw Error('Invalid number of arguments for getHaikuById');
   }
   const id = args[0];
-  return context.api.getHaikuById(id)
+  const serverId = context.server.id;
+  return context.api.getHaikuById(serverId, id)
     .then(responseHaiku => context.channel.send(formatHaiku(responseHaiku)))
     .catch((error) => {
-      console.log(`Caught error ${error}, sending simplified error message to discord`);
+      console.log(`Caught error ${JSON.stringify(error)}, sending simplified error message to discord`);
       context.channel.send(`An error occurred while fetching haiku ${id}`);
     });
 };

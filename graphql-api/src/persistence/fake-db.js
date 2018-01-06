@@ -1,32 +1,51 @@
-const { Haiku } = require('../types/Haiku');
+const { Haiku } = require('../domain/types/Haiku');
 
 class FakeDB {
   constructor() {
-    this.count = 0;
     this.haikuMap = {};
   }
 
-  createHaiku(haiku) {
-    const id = this.count;
-    this.count += 1;
-    this.haikuMap[id] = haiku;
-    return new Haiku(id, haiku);
-  }
+  createHaiku(haikuInput) {
+    const { serverId } = haikuInput;
 
-  getHaiku(id) {
-    if (!this.haikuMap[id]) {
-      throw new Error(`No haiku with id ${id} found`);
+    if (!(serverId in this.haikuMap)) {
+      this.haikuMap[serverId] = { count: 0 };
     }
-
-    return new Haiku(id, this.haikuMap[id]);
+    const id = this.haikuMap[serverId].count;
+    this.haikuMap[serverId][id] = {
+      id,
+      lines: haikuInput.lines,
+      authors: haikuInput.authors,
+      channel: haikuInput.channelId,
+      server: serverId,
+    };
+    this.haikuMap[serverId].count += 1;
+    return this.getHaiku(serverId, id);
   }
 
-  clearHaiku(id) {
-    delete this.haikuMap[id];
+  getHaiku(serverId, id) {
+    if (!this.haikuMap[serverId] || !this.haikuMap[serverId][id]) {
+      throw new Error(`No haiku with id ${id} found in server ${serverId}`);
+    }
+    return new Haiku(id, this.haikuMap[serverId][id]);
+  }
+
+  clearHaiku(serverId, id) {
+    if (serverId in this.haikuMap) {
+      delete this.haikuMap[serverId][id];
+    }
   }
 
   clearAllHaikus() {
     this.haikuMap = {};
+  }
+
+  getChannel(id) {
+    return { id };
+  }
+
+  getServer(id) {
+    return { id };
   }
 }
 

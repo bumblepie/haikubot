@@ -5,15 +5,17 @@ const { describe, it, beforeEach } = require('mocha');
 const exampleHaiku = {
   authors: ['author'],
   lines: ['line1', 'line2', 'line3'],
+  serverId: 'server1',
 };
 
 const exampleHaiku2 = {
   authors: ['author_2', 'author_3'],
   lines: ['line4', 'line5', 'line6'],
+  serverId: 'server2',
 };
 
-function assertHaikuNotInRepo(repo, id) {
-  assert.throws(() => repo.getHaiku(id), new RegExp(`No haiku with id ${id} found`));
+function assertHaikuNotInRepo(repo, serverId, id) {
+  assert.throws(() => repo.getHaiku(serverId, id), new RegExp(`No haiku with id ${id} found in server ${serverId}`));
 }
 
 describe('fake-db', () => {
@@ -26,9 +28,9 @@ describe('fake-db', () => {
   describe('#clearAllHaikus', () => {
     it('should remove any haikus that have been previously created', () => {
       const { id } = repo.createHaiku(exampleHaiku);
-      repo.getHaiku(id);
+      repo.getHaiku(exampleHaiku.serverId, id);
       repo.clearAllHaikus();
-      assertHaikuNotInRepo(repo, id);
+      assertHaikuNotInRepo(repo, exampleHaiku.serverId, id);
     });
 
     it('should remove multiple haikus', () => {
@@ -40,12 +42,12 @@ describe('fake-db', () => {
       }
       for (let i = 0; i < NUM_HAIKUS; i += 1) {
         // shouldn't throw errs
-        repo.getHaiku(ids[i]);
+        repo.getHaiku(exampleHaiku.serverId, ids[i]);
       }
       repo.clearAllHaikus();
       for (let i = 0; i < NUM_HAIKUS; i += 1) {
         // should throw errs now db has been cleared
-        assertHaikuNotInRepo(repo, ids[i]);
+        assertHaikuNotInRepo(repo, exampleHaiku.serverId, ids[i]);
       }
     });
   });
@@ -53,26 +55,26 @@ describe('fake-db', () => {
   describe('#clearHaiku', () => {
     it('should clear a single haiku from the db', () => {
       const { id } = repo.createHaiku(exampleHaiku);
-      repo.getHaiku(id);
-      repo.clearHaiku(id);
-      assertHaikuNotInRepo(repo, id);
+      repo.getHaiku(exampleHaiku.serverId, id);
+      repo.clearHaiku(exampleHaiku.serverId, id);
+      assertHaikuNotInRepo(repo, exampleHaiku.serverId, id);
     });
 
     it('should clear only the specified haiku from the db', () => {
       const id1 = repo.createHaiku(exampleHaiku).id;
       const id2 = repo.createHaiku(exampleHaiku).id;
-      repo.getHaiku(id1);
-      repo.getHaiku(id2);
-      repo.clearHaiku(id1);
-      assertHaikuNotInRepo(repo, id1);
-      repo.getHaiku(id2);
+      repo.getHaiku(exampleHaiku.serverId, id1);
+      repo.getHaiku(exampleHaiku.serverId, id2);
+      repo.clearHaiku(exampleHaiku.serverId, id1);
+      assertHaikuNotInRepo(repo, exampleHaiku.serverId, id1);
+      repo.getHaiku(exampleHaiku.serverId, id2);
     });
   });
 
   describe('#createHaiku', () => {
     it('should create a haiku that can be recieved by #getHaiku', () => {
       const createResult = repo.createHaiku(exampleHaiku);
-      const getResult = repo.getHaiku(createResult.id);
+      const getResult = repo.getHaiku(exampleHaiku.serverId, createResult.id);
       assert(getResult.authors === exampleHaiku.authors);
       assert(getResult.lines === exampleHaiku.lines);
     });
@@ -81,7 +83,7 @@ describe('fake-db', () => {
       const createResult = repo.createHaiku(exampleHaiku);
       assert(createResult.authors === exampleHaiku.authors);
       assert(createResult.lines === exampleHaiku.lines);
-      const getResult = repo.getHaiku(createResult.id);
+      const getResult = repo.getHaiku(exampleHaiku.serverId, createResult.id);
       assert(getResult.authors === exampleHaiku.authors);
       assert(getResult.lines === exampleHaiku.lines);
     });
@@ -96,7 +98,7 @@ describe('fake-db', () => {
   describe('#getHaiku', () => {
     it('should return a haiku that has been inserted into the fake db', () => {
       const createResult = repo.createHaiku(exampleHaiku);
-      const getResult = repo.getHaiku(createResult.id);
+      const getResult = repo.getHaiku(exampleHaiku.serverId, createResult.id);
       assert(getResult.authors === exampleHaiku.authors);
       assert(getResult.lines === exampleHaiku.lines);
     });
@@ -104,11 +106,11 @@ describe('fake-db', () => {
     it('should return the correct haiku', () => {
       const createResult = repo.createHaiku(exampleHaiku);
       const createResult2 = repo.createHaiku(exampleHaiku2);
-      let getResult = repo.getHaiku(createResult.id);
+      let getResult = repo.getHaiku(exampleHaiku.serverId, createResult.id);
       assert(getResult.authors === exampleHaiku.authors);
       assert(getResult.lines === exampleHaiku.lines);
 
-      getResult = repo.getHaiku(createResult2.id);
+      getResult = repo.getHaiku(exampleHaiku2.serverId, createResult2.id);
       assert(getResult.authors === exampleHaiku2.authors);
       assert(getResult.lines === exampleHaiku2.lines);
     });

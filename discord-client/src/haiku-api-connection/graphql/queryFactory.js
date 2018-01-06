@@ -7,14 +7,17 @@ exports.createHaikuMutation = haiku => (
       haiku: {
         authors: haiku.authors,
         lines: haiku.lines,
+        serverId: haiku.serverId,
+        channelId: haiku.channelId,
       },
     },
   });
 
-exports.getHaikuByIdQuery = haikuId => (
+exports.getHaikuByIdQuery = (serverId, haikuId) => (
   {
     query: queries.getHaikuByIdQuery,
     variables: {
+      serverId,
       haikuId,
     },
   });

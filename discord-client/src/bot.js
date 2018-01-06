@@ -13,18 +13,21 @@ const commandPrefix = '!';
 
 const processMessage = (message) => {
   const { channel } = message;
+  const serverID = channel.guild.id;
   const channelID = channel.id;
 
   if (channelProcessorMap[channelID] == null) {
-    const newChannelProcessor = new ChannelProcessor(channelID);
+    const newChannelProcessor = new ChannelProcessor(serverID, channelID);
     newChannelProcessor.setOnHaikuFunction((haiku) => {
       console.log(`Haiku triggered:
         authors: ${haiku.authors}
-        lines: ${haiku.lines}`);
+        lines: ${haiku.lines},
+        serverId: ${haiku.serverId},
+        channelId: ${haiku.channelId}`);
       api.saveHaiku(haiku)
         .then(responseHaiku => channel.send(formatHaiku(responseHaiku)))
         .catch((error) => {
-          console.log(`Caught error ${error} while saving haiku, ignoring...`);
+          console.log(`Caught error ${JSON.stringify(error)} while saving haiku, ignoring...`);
           console.log('Failed to save haiku.');
         });
     });
@@ -39,7 +42,7 @@ client.on('ready', () => {
 });
 
 client.on('message', (message) => {
-  if(message.author.id === client.user.id) {
+  if (message.author.id === client.user.id) {
     // Ignore own messages
     return;
   }
@@ -52,6 +55,7 @@ client.on('message', (message) => {
     const context = {
       api,
       channel: message.channel,
+      server: message.guild,
     };
 
     try {
