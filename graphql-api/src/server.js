@@ -1,9 +1,10 @@
 const { schema } = require('./schema');
 const express = require('express');
 const graphqlHTTP = require('express-graphql');
-const { FakeDB } = require('./persistence/fake-db');
+const { MySqlDB } = require('./persistence/mysql');
 
-const repo = new FakeDB();
+const repo = new MySqlDB('haikuDB');
+repo.init();
 const app = express();
 
 app.use('/graphql', graphqlHTTP({
