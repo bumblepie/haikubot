@@ -71,6 +71,7 @@ class MySqlDB {
                     (ID MEDIUMINT NOT NULL AUTO_INCREMENT,
                     serverID VARCHAR(255) NOT NULL,
                     channelID VARCHAR(255) NOT NULL,
+                    creationTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     PRIMARY KEY (ID, serverID));`;
     const createLinesTableSQL = `CREATE TABLE IF NOT EXISTS haikuLines
                     (haikuID MEDIUMINT NOT NULL,
