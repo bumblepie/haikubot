@@ -1,4 +1,5 @@
 const { formatHaiku } = require('./formatHaiku');
+const fs = require('fs');
 
 const commandMap = {};
 
@@ -15,6 +16,16 @@ commandMap.getHaikuById = (context, args) => {
       context.channel.send(`An error occurred while fetching haiku ${id}`);
     });
 };
+
+commandMap.changePrefix = (context, args) => {
+  if (args.length !== 1) {
+    throw Error('Invalid number of arguments for changePrefix');
+  }
+  let { config } = context;
+  config.commandPrefix = args[0];
+  fs.writeFileSync('./config.json', JSON.stringify(config, null, 2), 'utf8');
+  context.channel.send(`Command prefix changed to "${config.commandPrefix}"`);
+}
 
 exports.tryCommand = (context, args) => {
   const commandName = args[0];
