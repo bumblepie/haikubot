@@ -7,10 +7,15 @@ class MySqlDB {
   }
 
   async init() {
+    if (process.env.MYSQL_HOST == null
+    || process.env.MYSQL_USER == null
+    || process.env.MYSQL_PASSWORD == null) {
+      throw Error('Some mysql environment variables not set');
+    }
     this.connection = mysql.createConnection({
-      host: 'localhost',
-      user: 'root',
-      password: 'root',
+      host: process.env.MYSQL_HOST,
+      user: process.env.MYSQL_USER,
+      password: process.env.MYSQL_PASSWORD,
     });
 
     await this.connect();
@@ -20,9 +25,9 @@ class MySqlDB {
     this.connection.end();
 
     this.connection = mysql.createConnection({
-      host: 'localhost',
-      user: 'root',
-      password: 'root',
+      host: process.env.MYSQL_HOST,
+      user: process.env.MYSQL_USER,
+      password: process.env.MYSQL_PASSWORD,
       database: this.DB_NAME,
     });
 

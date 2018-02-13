@@ -81,7 +81,7 @@ describe('mysql', () => {
       await assertHaikuNotInRepo(repo, exampleHaiku.serverId, id);
     });
 
-    it.only('should clear only the specified haiku from the db', async () => {
+    it('should clear the specified haiku from the db', async () => {
       const id1 = (await repo.createHaiku(exampleHaiku)).id;
       const id2 = (await repo.createHaiku(exampleHaiku)).id;
       await repo.getHaiku(exampleHaiku.serverId, id1);
