@@ -3,7 +3,7 @@ const fs = require('fs');
 
 const commandMap = {};
 
-commandMap.getHaikuById = (context, args) => {
+commandMap.gethaikubyid = (context, args) => {
   if (args.length !== 1) {
     throw Error('Invalid number of arguments for getHaikuById');
   }
@@ -17,7 +17,7 @@ commandMap.getHaikuById = (context, args) => {
     });
 };
 
-commandMap.changePrefix = (context, args) => {
+commandMap.changeprefix = (context, args) => {
   if (args.length !== 1) {
     throw Error('Invalid number of arguments for changePrefix');
   }
@@ -30,9 +30,10 @@ commandMap.changePrefix = (context, args) => {
 exports.tryCommand = (context, args) => {
   const commandName = args[0];
   const commandArgs = args.slice(1);
-  if (!(commandName in commandMap)) {
+  const lowercaseCommandName = commandName.toLowerCase();
+  if (!(lowercaseCommandName in commandMap)) {
     throw Error(`Could not find command ${commandName}`);
   } else {
-    return commandMap[commandName](context, commandArgs);
+    return commandMap[lowercaseCommandName](context, commandArgs);
   }
 };
