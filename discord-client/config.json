@@ -1,3 +1,5 @@
 {
-  "commandPrefix": "haikubot"
+  "default": {
+    "commandPrefix": "x"
+  }
 }

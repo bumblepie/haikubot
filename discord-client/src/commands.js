@@ -21,11 +21,14 @@ commandMap.changeprefix = (context, args) => {
   if (args.length !== 1) {
     throw Error('Invalid number of arguments for changePrefix');
   }
-  let { config } = context;
-  config.commandPrefix = args[0];
+  const { config } = context;
+  if (config[context.server] == null) {
+    config[context.server] = {};
+  }
+  [config[context.server].commandPrefix] = args;
   fs.writeFileSync('./config.json', JSON.stringify(config, null, 2), 'utf8');
-  context.channel.send(`Command prefix changed to "${config.commandPrefix}"`);
-}
+  context.channel.send(`Command prefix changed to "${config[context.server].commandPrefix}"`);
+};
 
 exports.tryCommand = (context, args) => {
   const commandName = args[0];

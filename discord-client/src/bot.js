@@ -14,11 +14,11 @@ const channelProcessorMap = {};
 const loadConfig = () => {
   const configContents = fs.readFileSync('./config.json');
   const config = JSON.parse(configContents);
-  if (config.commandPrefix == null) {
-    throw Error("commandPrefix must be set in config.json")
+  if (config.default.commandPrefix == null) {
+    throw Error('default commandPrefix must be set in config.json');
   }
   return config;
-}
+};
 
 const processMessage = (message) => {
   const { channel } = message;
@@ -52,14 +52,20 @@ client.on('ready', () => {
 
 client.on('message', (message) => {
   const config = loadConfig();
+  let commandPrefix;
+  if (config[message.guild]) {
+    commandPrefix = config[message.guild].commandPrefix || config.default.commandPrefix;
+  } else {
+    ({ commandPrefix } = config.default);
+  }
   if (message.author.id === client.user.id) {
     // Ignore own messages
     return;
   }
 
   const { content } = message;
-  if (content.startsWith(config.commandPrefix)) {
-    const trimmedContent = content.substring(config.commandPrefix.length).trim();
+  if (content.startsWith(commandPrefix)) {
+    const trimmedContent = content.substring(commandPrefix.length).trim();
     // split by whitespace
     const splitContent = trimmedContent.split(/\s+/);
     const context = {
