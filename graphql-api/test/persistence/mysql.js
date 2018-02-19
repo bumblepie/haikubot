@@ -53,23 +53,28 @@ describe('mysql', () => {
     });
 
     it('should remove multiple haikus', async () => {
-      const ids = [];
       const NUM_HAIKUS = 5;
+      const createResults = [];
       for (let i = 0; i < NUM_HAIKUS; i += 1) {
-        const createResult = await repo.createHaiku(exampleHaiku);
-        ids.push(createResult.id);
+        createResults.push(repo.createHaiku(exampleHaiku));
       }
+      const ids = (await Promise.all(createResults))
+        .map(result => result.id);
+
+      const getRequests = [];
       for (let i = 0; i < NUM_HAIKUS; i += 1) {
         // shouldn't throw errs
-        await repo.getHaiku(exampleHaiku.serverId, ids[i]);
+        getRequests.push(repo.getHaiku(exampleHaiku.serverId, ids[i]));
       }
-      console.debug('A');
+      await Promise.all(getRequests);
+
       await repo.clearAllHaikus();
-      console.debug('B');
+      const haikuChecks = [];
       for (let i = 0; i < NUM_HAIKUS; i += 1) {
         // should throw errs now db has been cleared
-        await assertHaikuNotInRepo(repo, exampleHaiku.serverId, ids[i]);
+        haikuChecks.push(assertHaikuNotInRepo(repo, exampleHaiku.serverId, ids[i]));
       }
+      await Promise.all(haikuChecks);
     });
   });
 
