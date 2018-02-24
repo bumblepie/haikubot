@@ -7,7 +7,7 @@ node {
             sh 'whoami'
             sh 'docker inspect -f . node:9.3'
             docker.image('node:9.3').inside {
-                sh 'npm install'
+                sh 'sudo npm install'
             }
         }
         stage('ES Lint') {
@@ -24,8 +24,6 @@ node {
               }
               /* Run some tests which require MySQL */
               docker.image('node:9.3').inside("--link ${c.id}:db") {
-                  sh 'npm install'
-                  sh 'npm list'
                   withEnv(['MYSQL_HOST=db',
                     'MYSQL_USER=root',
                     'MYSQL_PASSWORD=root']) {
@@ -42,7 +40,7 @@ node {
             sh 'whoami'
             sh 'docker inspect -f . node:9.3'
             docker.image('node:9.3').inside {
-                sh 'npm install'
+                sh 'sudo npm install'
             }
         }
         stage('ES Lint') {
