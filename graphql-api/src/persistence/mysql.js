@@ -1,5 +1,6 @@
 const { Haiku } = require('../domain/types/Haiku');
 const mysql = require('mysql');
+const config = require('../config');
 
 class MySqlDB {
   constructor(dbName) {
@@ -7,15 +8,15 @@ class MySqlDB {
   }
 
   async init() {
-    if (process.env.MYSQL_HOST == null
-    || process.env.MYSQL_USER == null
-    || process.env.MYSQL_PASSWORD == null) {
+    if (config.mySQLHost == null
+    || config.mySQLUser == null
+    || config.mySQLPassword == null) {
       throw Error('Some mysql environment variables not set');
     }
     this.connection = mysql.createConnection({
-      host: process.env.MYSQL_HOST,
-      user: process.env.MYSQL_USER,
-      password: process.env.MYSQL_PASSWORD,
+      host: config.mySQLHost,
+      user: config.mySQLUser,
+      password: config.mySQLPassword,
     });
 
     await this.connect();
@@ -25,9 +26,9 @@ class MySqlDB {
     this.connection.end();
 
     this.connection = mysql.createConnection({
-      host: process.env.MYSQL_HOST,
-      user: process.env.MYSQL_USER,
-      password: process.env.MYSQL_PASSWORD,
+      host: config.mySQLHost,
+      user: config.mySQLUser,
+      password: config.mySQLPassword,
       database: this.DB_NAME,
     });
 

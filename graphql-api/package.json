@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint .",
     "test": "mocha --recursive",
-    "posttest": "eslint .",
     "start": "node src/server.js"
   },
   "author": "",
