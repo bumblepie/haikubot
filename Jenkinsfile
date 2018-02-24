@@ -16,7 +16,7 @@ node {
         }
       }
       stage('Unit Tests') {
-      docker.image('mysql:5').withRun('-e "MYSQL_ROOT_PASSWORD=root" -p 3306:3306') { c ->
+      docker.image('mysql:5.6').withRun('-e "MYSQL_ROOT_PASSWORD=root" -p 3306:3306') { c ->
             /* Wait until mysql service is up */
             docker.image('mysql:5').inside("--link ${c.id}:db") {
               /* Wait until mysql service is up */
