@@ -7,7 +7,9 @@ node {
             sh 'whoami'
             sh 'docker inspect -f . node:9.3'
             docker.image('node:9.3').inside {
-                sh 'sudo npm install'
+                withEnv(['npm_config_cache=npm-cache']) {
+                  sh 'npm install'
+                }
             }
         }
         stage('ES Lint') {
@@ -40,7 +42,9 @@ node {
             sh 'whoami'
             sh 'docker inspect -f . node:9.3'
             docker.image('node:9.3').inside {
-                sh 'sudo npm install'
+              withEnv(['npm_config_cache=npm-cache']) {
+                sh 'npm install'
+              }
             }
         }
         stage('ES Lint') {
