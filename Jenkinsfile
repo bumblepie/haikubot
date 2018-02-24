@@ -31,4 +31,22 @@ node {
         }
       }
     }
+
+    dir('discord-client') {
+      stage('Build') {
+          docker.image('node:9.3').inside {
+              sh 'npm install'
+          }
+      }
+      stage('ES Lint') {
+        docker.image('node:9.3').inside {
+            sh 'npm run lint'
+        }
+      }
+      stage('Unit Tests') {
+        docker.image('node:9.3').inside {
+            sh 'npm test'
+        }
+      }
+    }
 }
