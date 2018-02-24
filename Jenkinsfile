@@ -6,8 +6,12 @@ node {
               sh 'npm install'
           }
       }
-
-      stage('Test') {
+      stage('ES Lint') {
+        docker.image('node:9.3').inside {
+            sh 'npm run lint'
+        }
+      }
+      stage('Unit Tests') {
       docker.image('mysql:5').withRun('-e "MYSQL_ROOT_PASSWORD=root" -p 3306:3306') { c ->
             /* Wait until mysql service is up */
             docker.image('mysql:5').inside("--link ${c.id}:db") {
