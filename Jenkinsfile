@@ -5,7 +5,9 @@ node {
       dir('graphql-api') {
         stage('Build') {
             docker.image('node:9.3').inside {
-                sh 'npm install'
+                withEnv(['npm_config_cache=npm-cache']) {
+                  sh 'npm install'
+                }
             }
         }
         stage('ES Lint') {
@@ -14,9 +16,9 @@ node {
           }
         }
         stage('Unit Tests') {
-        docker.image('mysql:5').withRun('-e "MYSQL_ROOT_PASSWORD=root" -p 3306:3306') { c ->
+        docker.image('mysql:5.6').withRun('-e "MYSQL_ROOT_PASSWORD=root" -p 3306:3306') { c ->
               /* Wait until mysql service is up */
-              docker.image('mysql:5').inside("--link ${c.id}:db") {
+              docker.image('mysql:5.6').inside("--link ${c.id}:db") {
                 /* Wait until mysql service is up */
                 sh 'while ! mysqladmin ping -hdb --silent; do sleep 1; done'
               }
@@ -38,7 +40,9 @@ node {
       dir('discord-client') {
         stage('Build') {
             docker.image('node:9.3').inside {
-                sh 'npm install'
+                withEnv(['npm_config_cache=npm-cache']) {
+                  sh 'npm install'
+                }
             }
         }
         stage('ES Lint') {
