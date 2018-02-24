@@ -5,7 +5,7 @@ node {
       dir('graphql-api') {
         stage('Build') {
             sh 'whoami'
-            sh 'docker --version'
+            sh 'docker inspect -f . node:9.3'
             docker.image('node:9.3').inside {
                 sh 'npm install'
             }
@@ -40,7 +40,7 @@ node {
       dir('discord-client') {
         stage('Build') {
             sh 'whoami'
-            sh 'docker --version'
+            sh 'docker inspect -f . node:9.3'
             docker.image('node:9.3').inside {
                 sh 'npm install'
             }
