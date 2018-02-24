@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const fs = require('fs');
 const { ChannelProcessor } = require('./channelProcessor');
-const { discordApiToken, graphqlApiBaseUrl } = require('./secrets');
+const { discordApiToken, graphqlApiBaseUrl } = require('./config');
 const { formatHaiku } = require('./formatHaiku');
 const commands = require('./commands');
 const apiFactory = require('./haiku-api-connection/apiFactory');
