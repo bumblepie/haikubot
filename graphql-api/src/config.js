@@ -1,6 +1,7 @@
 /* What type of db to use:
  * - FAKE
  * - MY_SQL
+ * - SQLITE
  */
 exports.db = process.env.DB_TYPE;
 
@@ -8,3 +9,6 @@ exports.db = process.env.DB_TYPE;
 exports.mySQLHost = process.env.MYSQL_HOST;
 exports.mySQLUser = process.env.MYSQL_USER;
 exports.mySQLPassword = process.env.MYSQL_PASSWORD;
+
+// SQLite config
+exports.sqliteDBFile = process.env.SQLITE_DB_FILE || './deploy/db/haikus.db';
