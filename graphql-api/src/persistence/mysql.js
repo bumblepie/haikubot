@@ -3,8 +3,8 @@ const mysql = require('mysql');
 const config = require('../config');
 
 class MySqlHaikuDB {
-  constructor(dbName) {
-    this.DB_NAME = dbName;
+  constructor() {
+    this.DB_NAME = config.mySQLDBName;
   }
 
   async init() {

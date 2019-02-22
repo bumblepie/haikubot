@@ -5,8 +5,8 @@ const { FakeHaikuDB } = require('./fake-db');
 
 exports.newHaikuRepository = () => {
   if (config.db === 'MY_SQL') {
-    return new MySqlHaikuDB('haikuDB');
     console.debug('Using MYSQL database');
+    return new MySqlHaikuDB();
   }
   if (config.db === 'SQLITE') {
     console.debug('Using SQLITE database');
