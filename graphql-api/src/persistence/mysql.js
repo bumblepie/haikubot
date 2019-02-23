@@ -2,7 +2,7 @@ const { Haiku } = require('../domain/types/Haiku');
 const mysql = require('mysql');
 const config = require('../config');
 
-class MySqlDB {
+class MySqlHaikuDB {
   constructor(dbName) {
     this.DB_NAME = dbName;
   }
@@ -162,4 +162,4 @@ class MySqlDB {
   }
 }
 
-exports.MySqlDB = MySqlDB;
+exports.MySqlHaikuDB = MySqlHaikuDB;

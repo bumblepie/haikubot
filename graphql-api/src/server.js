@@ -1,9 +1,9 @@
 const { schema } = require('./schema');
 const express = require('express');
 const graphqlHTTP = require('express-graphql');
-const { MySqlDB } = require('./persistence/mysql');
+const Repo = require('./persistence/repo');
 
-const repo = new MySqlDB('haikuDB');
+const repo = Repo.newHaikuRepository();
 repo.init().then(() => {
   const app = express();
 
