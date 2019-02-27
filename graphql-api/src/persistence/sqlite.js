@@ -1,45 +1,16 @@
 const { Haiku } = require('../domain/types/Haiku');
-const mysql = require('mysql');
 const config = require('../config');
+const sqlite = require('sqlite3');
 
-class MySqlHaikuDB {
-  constructor() {
-    this.DB_NAME = config.mySQLDBName;
-  }
-
+class SQLiteHaikuDB {
   async init() {
-    if (config.mySQLHost == null
-    || config.mySQLUser == null
-    || config.mySQLPassword == null) {
-      throw Error('Some mysql environment variables not set');
-    }
-    this.connection = mysql.createConnection({
-      host: config.mySQLHost,
-      user: config.mySQLUser,
-      password: config.mySQLPassword,
-    });
-
-    await this.connect();
-
     await this.createDatabase();
-
-    this.connection.end();
-
-    this.connection = mysql.createConnection({
-      host: config.mySQLHost,
-      user: config.mySQLUser,
-      password: config.mySQLPassword,
-      database: this.DB_NAME,
-    });
-
-    await this.connect();
-
     await this.createTables();
   }
 
-  connect() {
+  async createDatabase() {
     return new Promise((resolve, reject) => {
-      this.connection.connect((err) => {
+      this.db = new sqlite.Database(config.sqliteDBFile, async (err) => {
         if (err) {
           reject(err);
         }
@@ -48,32 +19,13 @@ class MySqlHaikuDB {
     });
   }
 
-  disconnect() {
-    this.connection.end();
-  }
-
-  query(sql, args) {
-    return new Promise((resolve, reject) => {
-      this.connection.query(sql, args, (err, rows) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(rows);
-      });
-    });
-  }
-
-  async createDatabase() {
-    await this.query(`CREATE DATABASE IF NOT EXISTS ${this.DB_NAME};`);
-  }
-
   async createTables() {
     const createHaikusTableSQL = `CREATE TABLE IF NOT EXISTS haikus
-                    (ID MEDIUMINT NOT NULL AUTO_INCREMENT,
+                    (ID INTEGER NOT NULL,
                     serverID VARCHAR(255) NOT NULL,
                     channelID VARCHAR(255) NOT NULL,
                     creationTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    PRIMARY KEY (ID, serverID));`;
+                    PRIMARY KEY (ID));`;
     const createLinesTableSQL = `CREATE TABLE IF NOT EXISTS haikuLines
                     (haikuID MEDIUMINT NOT NULL,
                     haikuServerID VARCHAR(255) NOT NULL,
@@ -89,27 +41,48 @@ class MySqlHaikuDB {
                     PRIMARY KEY (haikuID, haikuServerID, authorID),
                     FOREIGN KEY (haikuID, haikuServerID)
                       REFERENCES haikus(ID, serverID));`;
-    await this.query(createHaikusTableSQL);
-    await this.query(createLinesTableSQL);
-    await this.query(createAuthorsTableSQL);
+    await this.run(createHaikusTableSQL);
+    await this.run(createLinesTableSQL);
+    await this.run(createAuthorsTableSQL);
+  }
+
+  query(sql, args) {
+    return new Promise((resolve, reject) => {
+      this.db.all(sql, args, (err, rows) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(rows);
+      });
+    });
+  }
+
+  run(sql, args) {
+    return new Promise((resolve, reject) => {
+      this.db.run(sql, args, function onComplete(err) {
+        if (err) {
+          reject(err);
+        }
+        resolve(this);
+      });
+    });
   }
 
   async createHaiku(haikuInput) {
-    const result = await this.query(`INSERT INTO haikus (serverID, channelID)
+    const result = await this.run(`INSERT INTO haikus (serverID, channelID)
       values ("${haikuInput.serverId}", "${haikuInput.channelId}");`);
-    const id = result.insertId;
+    const id = result.lastID;
 
     const authorValues = haikuInput.authors
       .map(author => `("${id}", "${haikuInput.serverId}", "${author}")`)
       .join(',');
-
-    await this.query(`INSERT INTO authors (haikuID, haikuServerID, authorID)
+    await this.run(`INSERT INTO authors (haikuID, haikuServerID, authorID)
       values ${authorValues};`);
 
     const lineValues = haikuInput.lines
       .map((line, index) => `("${id}", "${haikuInput.serverId}", ${index}, "${line}")`)
       .join(',');
-    await this.query(`INSERT INTO haikuLines (haikuID, haikuServerID, lineIndex, content)
+    await this.run(`INSERT INTO haikuLines (haikuID, haikuServerID, lineIndex, content)
       values ${lineValues};`);
 
     return this.getHaiku(haikuInput.serverId, id);
@@ -140,9 +113,9 @@ class MySqlHaikuDB {
   }
 
   async clearHaiku(serverId, id) {
-    await this.query(`DELETE FROM haikuLines WHERE haikuID="${id}" AND haikuServerID="${serverId}"`);
-    await this.query(`DELETE FROM authors WHERE haikuID="${id}" AND haikuServerID="${serverId}"`);
-    await this.query(`DELETE FROM haikus WHERE ID="${id}" AND serverID="${serverId}"`);
+    await this.run(`DELETE FROM haikuLines WHERE haikuID="${id}" AND haikuServerID="${serverId}"`);
+    await this.run(`DELETE FROM authors WHERE haikuID="${id}" AND haikuServerID="${serverId}"`);
+    await this.run(`DELETE FROM haikus WHERE ID="${id}" AND serverID="${serverId}"`);
   }
 
   async clearAllHaikus() {
@@ -150,7 +123,6 @@ class MySqlHaikuDB {
     await this.query('DROP TABLE authors');
     await this.query('DROP TABLE haikus');
     await this.createTables();
-    console.debug('tables created');
   }
 
   getChannel(id) {
@@ -162,4 +134,4 @@ class MySqlHaikuDB {
   }
 }
 
-exports.MySqlHaikuDB = MySqlHaikuDB;
+exports.SQLiteHaikuDB = SQLiteHaikuDB;

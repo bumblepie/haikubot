@@ -1,8 +1,12 @@
 const { Haiku } = require('../domain/types/Haiku');
 
-class FakeDB {
-  constructor() {
+class FakeHaikuDB {
+
+  async init() {
     this.haikuMap = {};
+    return new Promise((resolve) => {
+      resolve();
+    });
   }
 
   createHaiku(haikuInput) {
@@ -49,4 +53,4 @@ class FakeDB {
   }
 }
 
-exports.FakeDB = FakeDB;
+exports.FakeHaikuDB = FakeHaikuDB;
