@@ -90,12 +90,51 @@ describe('commands', () => {
     });
 
     it('should throw an error when wrong number of args', () => {
-      const expectedError = 'Invalid number of arguments for getHaikuById';
+      const expectedError = /Invalid number of arguments for getHaikuById/;
 
       let args = ['getHaikuById'];
       assert.throws(() => commands.tryCommand(context, args), expectedError);
       args = ['getHaikuById', '9', '0'];
       assert.throws(() => commands.tryCommand(context, args), expectedError);
+    });
+  });
+
+  describe('#count', () => {
+    let channelOutput = '';
+    const context = {
+      channel: {
+        send: (output) => {
+          channelOutput += output;
+        },
+      },
+    };
+
+    beforeEach(() => {
+      channelOutput = '';
+    });
+
+    it('should count the number of syllables of the rest of the arguments', async () => {
+      const args = ['count', 'syllables'];
+      await commands.tryCommand(context, args);
+      assert.equal(channelOutput, '"syllables" is 3 syllables');
+    });
+
+    it('should not use the plural "syllables" if it is one syllable', async () => {
+      const args = ['count', 'one'];
+      await commands.tryCommand(context, args);
+      assert.equal(channelOutput, '"one" is 1 syllable');
+    });
+
+    it('should not use count the syllables of multiple arguments', async () => {
+      const args = ['count', 'one', 'two', 'three'];
+      await commands.tryCommand(context, args);
+      assert.equal(channelOutput, '"one two three" is 3 syllables');
+    });
+
+    it('should still send a message even if no other args are given', async () => {
+      const args = ['count'];
+      await commands.tryCommand(context, args);
+      assert.equal(channelOutput, '"" is 0 syllables');
     });
   });
 });
