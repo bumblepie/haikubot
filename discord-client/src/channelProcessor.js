@@ -1,5 +1,5 @@
 const { Haiku } = require('./types/Haiku');
-const { isHaiku } = require('./validateHaiku');
+const { isHaiku, getSingleLinehaiku } = require('./validateHaiku');
 
 class ChannelProcessor {
   constructor(serverID, channelID) {
@@ -19,6 +19,17 @@ class ChannelProcessor {
   }
 
   processSplitMessage(newMessage) {
+    const singleLinehaiku = getSingleLinehaiku(newMessage.content);
+    if (singleLinehaiku != null) {
+      const haiku = new Haiku(null, {
+        authors: [newMessage.author.id],
+        lines: singleLinehaiku,
+        serverId: this.serverID,
+        channelId: this.channelID,
+      });
+      this.onHaiku(haiku);
+    }
+
     this.messages.push(newMessage);
     while (this.messages.length > 3) {
       // remove old messages
@@ -27,9 +38,9 @@ class ChannelProcessor {
 
     if (this.messages.length === 3) {
       const lines = this.messages.map(message => message.content);
-      const authors = this.messages.map(message => message.author.id);
-      const uniqueAuthors = Array.from(new Set(authors));
       if (isHaiku(lines)) {
+        const authors = this.messages.map(message => message.author.id);
+        const uniqueAuthors = Array.from(new Set(authors));
         const haiku = new Haiku(null, {
           authors: uniqueAuthors,
           lines,
