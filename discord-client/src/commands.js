@@ -1,5 +1,6 @@
 const { formatHaiku } = require('./formatHaiku');
 const fs = require('fs');
+const syllables = require('syllable');
 
 const commandMap = {};
 
@@ -28,6 +29,12 @@ commandMap.changeprefix = (context, args) => {
   [config[context.server].commandPrefix] = args;
   fs.writeFileSync('./config.json', JSON.stringify(config, null, 2), 'utf8');
   context.channel.send(`Command prefix changed to "${config[context.server].commandPrefix}"`);
+};
+
+commandMap.count = (context, args) => {
+  const value = args.join(' ');
+  const syllableCount = syllables(value);
+  context.channel.send(`"${value}" is ${syllableCount} syllable${syllableCount === 1 ? '' : 's'}`);
 };
 
 exports.tryCommand = (context, args) => {
