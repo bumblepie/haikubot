@@ -41,8 +41,10 @@ client.on('ready', () => {
 });
 
 client.on('message', (message) => {
-  if (message.author.id === client.user.id) {
-    // Ignore own messages
+  // Check for bot mention at start of message
+  const commandregex = new RegExp(`^<@!?${client.user.id}> `);
+  if (message.author.bot) {
+    // Ignore bot messages
     return;
   }
 
