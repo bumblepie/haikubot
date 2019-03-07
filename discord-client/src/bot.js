@@ -17,18 +17,20 @@ const processMessage = (message) => {
 
   if (channelProcessorMap[channelID] == null) {
     const newChannelProcessor = new ChannelProcessor(serverID, channelID);
-    newChannelProcessor.setOnHaikuFunction((haiku) => {
+    newChannelProcessor.setOnHaikuFunction(async (haiku) => {
       console.log(`Haiku triggered:
         authors: ${haiku.authors}
         lines: ${haiku.lines},
         serverId: ${haiku.serverId},
         channelId: ${haiku.channelId}`);
-      api.saveHaiku(haiku)
-        .then(responseHaiku => channel.send(formatHaiku(responseHaiku)))
-        .catch((error) => {
-          console.log(`Caught error ${JSON.stringify(error)} while saving haiku, ignoring...`);
-          console.log('Failed to save haiku.');
-        });
+      try {
+        const responseHaiku = await api.saveHaiku(haiku);
+        const msg = await formatHaiku(responseHaiku, client, channel.guild);
+        channel.send(msg);
+      } catch (error) {
+        console.log(`Caught error ${JSON.stringify(error)} while saving haiku, ignoring...`);
+        console.log('Failed to save haiku.');
+      }
     });
     channelProcessorMap[channelID] = newChannelProcessor;
   }
@@ -40,7 +42,7 @@ client.on('ready', () => {
   console.log('Bot is ready');
 });
 
-client.on('message', (message) => {
+client.on('message', async (message) => {
   // Check for bot mention at start of message
   const commandregex = new RegExp(`^<@!?${client.user.id}> `);
   if (message.author.bot) {
@@ -59,10 +61,11 @@ client.on('message', (message) => {
       api,
       channel: message.channel,
       server: message.guild,
+      client,
     };
 
     try {
-      commands.tryCommand(context, splitContent);
+      await commands.tryCommand(context, splitContent);
     } catch (err) {
       console.log(`Error while processing command: ${err}`);
       message.channel.send(err.message);
