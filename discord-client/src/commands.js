@@ -3,18 +3,20 @@ const syllables = require('syllable');
 
 const commandMap = {};
 
-commandMap.gethaikubyid = (context, args) => {
+commandMap.gethaikubyid = async (context, args) => {
   if (args.length !== 1) {
     throw Error('Invalid number of arguments for getHaikuById');
   }
   const id = args[0];
   const serverId = context.server.id;
-  return context.api.getHaikuById(serverId, id)
-    .then(responseHaiku => context.channel.send(formatHaiku(responseHaiku)))
-    .catch((error) => {
-      console.log(`Caught error ${JSON.stringify(error)}, sending simplified error message to discord`);
-      context.channel.send(`An error occurred while fetching haiku ${id}`);
-    });
+  try {
+    const responseHaiku = await context.api.getHaikuById(serverId, id);
+    const message = await formatHaiku(responseHaiku, context.client, context.server);
+    await context.channel.send(message);
+  } catch (error) {
+    console.log(`Caught error ${JSON.stringify(error)}, sending simplified error message to discord`);
+    await context.channel.send(`An error occurred while fetching haiku ${id}`);
+  }
 };
 
 commandMap.count = (context, args) => {
@@ -28,8 +30,9 @@ exports.tryCommand = (context, args) => {
   const commandArgs = args.slice(1);
   const lowercaseCommandName = commandName.toLowerCase();
   if (!(lowercaseCommandName in commandMap)) {
-    throw Error(`Could not find command ${commandName}`);
-  } else {
-    return commandMap[lowercaseCommandName](context, commandArgs);
+    return new Promise(() => {
+      throw Error(`Could not find command ${commandName}`);
+    });
   }
+  return commandMap[lowercaseCommandName](context, commandArgs);
 };

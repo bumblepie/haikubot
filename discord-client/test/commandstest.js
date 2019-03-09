@@ -1,21 +1,20 @@
 const assert = require('assert');
 const { describe, it, beforeEach } = require('mocha');
 const { Haiku } = require('../src/types/Haiku');
-const { formatHaiku } = require('../src/formatHaiku');
 const commands = require('../src/commands');
 
 describe('commands', () => {
   describe('#invalidCommand', () => {
     const context = {};
 
-    it('should throw an error if an invalid command is given', () => {
+    it('should throw an error if an invalid command is given', async () => {
       const args = ['invalidCommand'];
-      assert.throws(() => commands.tryCommand(context, args), /Could not find command invalidCommand/);
+      await assert.rejects(() => commands.tryCommand(context, args), Error('Could not find command invalidCommand'));
     });
   });
 
   describe('#getHaikuById', () => {
-    let channelOutput = '';
+    let channelOutput = [];
     const testId = '0';
     const testServerId = 'testServer';
     const testServer2Id = 'testServer2';
@@ -31,6 +30,13 @@ describe('commands', () => {
       channelId: 'channel2',
       serverId: testServer2Id,
     });
+
+    const client = {
+      fetchUser: userId => ({ username: userId }),
+      user: {
+        avatarURL: 'bot avatar',
+      },
+    };
 
     const context = {
       api: {
@@ -49,36 +55,35 @@ describe('commands', () => {
       },
       channel: {
         send: (output) => {
-          channelOutput += output;
+          channelOutput.push(output);
         },
       },
       server: {
         id: testServerId,
       },
+      client,
     };
 
     beforeEach(() => {
-      channelOutput = '';
+      channelOutput = [];
     });
 
-    it('should send a correctly formatted haiku message', async () => {
+    it('should send an embed with the correct haiku message', async () => {
       const args = ['getHaikuById', testId];
       await commands.tryCommand(context, args);
-      const expectedOutput = formatHaiku(haiku);
-      assert.equal(channelOutput, expectedOutput);
+      assert.equal(channelOutput.length, 1);
+      assert.equal(channelOutput[0].embed.description, '*line1\nline2\nline3*');
     });
 
-    it('should send a the correct message when called in a different server', async () => {
+    it('should send the correct message when called in a different server', async () => {
       const args = ['getHaikuById', testId];
       const context2 = context;
       context2.server = {
         id: testServer2Id,
       };
-      console.log(context2);
-      console.log(args);
       await commands.tryCommand(context2, args);
-      const expectedOutput = formatHaiku(haiku2);
-      assert.equal(channelOutput, expectedOutput);
+      assert.equal(channelOutput.length, 1);
+      assert.equal(channelOutput[0].embed.description, '*line4\nline5\nline6*');
     });
 
     it('should send an error when fetching fails', async () => {
@@ -89,13 +94,12 @@ describe('commands', () => {
       assert.equal(channelOutput, expectedOutput);
     });
 
-    it('should throw an error when wrong number of args', () => {
+    it('should throw an error when wrong number of args', async () => {
       const expectedError = /Invalid number of arguments for getHaikuById/;
-
       let args = ['getHaikuById'];
-      assert.throws(() => commands.tryCommand(context, args), expectedError);
+      await assert.rejects(() => commands.tryCommand(context, args), expectedError);
       args = ['getHaikuById', '9', '0'];
-      assert.throws(() => commands.tryCommand(context, args), expectedError);
+      await assert.rejects(() => commands.tryCommand(context, args), expectedError);
     });
   });
 
