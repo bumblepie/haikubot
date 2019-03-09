@@ -1,5 +1,4 @@
 const Discord = require('discord.js');
-const fs = require('fs');
 const { ChannelProcessor } = require('./channelProcessor');
 const { discordApiToken, graphqlApiBaseUrl } = require('./config');
 const { formatHaiku } = require('./formatHaiku');
@@ -10,15 +9,6 @@ const api = apiFactory.createGraphqlApi(graphqlApiBaseUrl);
 const client = new Discord.Client();
 
 const channelProcessorMap = {};
-
-const loadConfig = () => {
-  const configContents = fs.readFileSync('./config.json');
-  const config = JSON.parse(configContents);
-  if (config.default.commandPrefix == null) {
-    throw Error('default commandPrefix must be set in config.json');
-  }
-  return config;
-};
 
 const processMessage = (message) => {
   const { channel } = message;
@@ -51,25 +41,21 @@ client.on('ready', () => {
 });
 
 client.on('message', (message) => {
-  const config = loadConfig();
-  let commandPrefix;
-  if (config[message.guild]) {
-    commandPrefix = config[message.guild].commandPrefix || config.default.commandPrefix;
-  } else {
-    ({ commandPrefix } = config.default);
-  }
-  if (message.author.id === client.user.id) {
-    // Ignore own messages
+  // Check for bot mention at start of message
+  const commandregex = new RegExp(`^<@!?${client.user.id}> `);
+  if (message.author.bot) {
+    // Ignore bot messages
     return;
   }
 
   const { content } = message;
-  if (content.startsWith(commandPrefix)) {
-    const trimmedContent = content.substring(commandPrefix.length).trim();
+  if (commandregex.test(content)) {
     // split by whitespace
-    const splitContent = trimmedContent.split(/\s+/);
+    const splitContent = content.split(/\s+/);
+    // remove first arg to ignore the bot mention
+    splitContent.shift();
+
     const context = {
-      config,
       api,
       channel: message.channel,
       server: message.guild,
