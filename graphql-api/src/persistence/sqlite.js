@@ -1,8 +1,10 @@
 const { Haiku } = require('../domain/types/Haiku');
-const config = require('../config');
 const sqlite = require('sqlite3');
 
 class SQLiteHaikuDB {
+  constructor(config) {
+    this.sqliteDBFile = config.sqliteDBFile;
+  }
   async init() {
     await this.createDatabase();
     await this.createTables();
@@ -18,7 +20,7 @@ class SQLiteHaikuDB {
 
   async createDatabase() {
     return new Promise((resolve, reject) => {
-      this.db = new sqlite.Database(config.sqliteDBFile, async (err) => {
+      this.db = new sqlite.Database(this.sqliteDBFile, async (err) => {
         if (err) {
           reject(err);
         }

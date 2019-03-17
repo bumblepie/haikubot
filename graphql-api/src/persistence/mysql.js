@@ -1,22 +1,24 @@
 const { Haiku } = require('../domain/types/Haiku');
 const mysql = require('mysql');
-const config = require('../config');
 
 class MySqlHaikuDB {
-  constructor() {
-    this.DB_NAME = config.mySQLDBName;
+  constructor(config) {
+    this.dbName = config.mySQLDBName;
+    this.mySQLHost = config.mySQLHost;
+    this.mySQLUser = config.mySQLUser;
+    this.mySQLPassword = config.mySQLPassword;
   }
 
   async init() {
-    if (config.mySQLHost == null
-    || config.mySQLUser == null
-    || config.mySQLPassword == null) {
+    if (this.mySQLHost == null
+    || this.mySQLUser == null
+    || this.mySQLPassword == null) {
       throw Error('Some mysql environment variables not set');
     }
     this.connection = mysql.createConnection({
-      host: config.mySQLHost,
-      user: config.mySQLUser,
-      password: config.mySQLPassword,
+      host: this.mySQLHost,
+      user: this.mySQLUser,
+      password: this.mySQLPassword,
     });
 
     await this.connect();
@@ -26,10 +28,10 @@ class MySqlHaikuDB {
     await this.disconnect();
 
     this.connection = mysql.createConnection({
-      host: config.mySQLHost,
-      user: config.mySQLUser,
-      password: config.mySQLPassword,
-      database: this.DB_NAME,
+      host: this.mySQLHost,
+      user: this.mySQLUser,
+      password: this.mySQLPassword,
+      database: this.dbName,
     });
 
     await this.connect();
@@ -75,7 +77,7 @@ class MySqlHaikuDB {
   }
 
   async createDatabase() {
-    await this.query(`CREATE DATABASE IF NOT EXISTS ${this.DB_NAME};`);
+    await this.query(`CREATE DATABASE IF NOT EXISTS ${this.dbName};`);
   }
 
   async createTables() {

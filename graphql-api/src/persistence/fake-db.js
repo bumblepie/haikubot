@@ -1,6 +1,7 @@
 const { Haiku } = require('../domain/types/Haiku');
 
 class FakeHaikuDB {
+
   async init() {
     this.haikuMap = {};
     return new Promise((resolve) => {
