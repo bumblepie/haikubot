@@ -8,6 +8,14 @@ class SQLiteHaikuDB {
     await this.createTables();
   }
 
+  /* eslint-disable class-methods-use-this */
+  async close() {
+    return new Promise((resolve) => {
+      resolve();
+    });
+  }
+  /* eslint-enable class-methods-use-this */
+
   async createDatabase() {
     return new Promise((resolve, reject) => {
       this.db = new sqlite.Database(config.sqliteDBFile, async (err) => {
@@ -133,6 +141,7 @@ class SQLiteHaikuDB {
     await this.createTables();
   }
 
+  /* eslint-disable class-methods-use-this */
   getChannel(id) {
     return { id };
   }
@@ -140,6 +149,7 @@ class SQLiteHaikuDB {
   getServer(id) {
     return { id };
   }
+  /* eslint-ensable class-methods-use-this */
 }
 
 exports.SQLiteHaikuDB = SQLiteHaikuDB;

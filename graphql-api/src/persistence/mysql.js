@@ -23,7 +23,7 @@ class MySqlHaikuDB {
 
     await this.createDatabase();
 
-    this.connection.end();
+    await this.disconnect();
 
     this.connection = mysql.createConnection({
       host: config.mySQLHost,
@@ -35,6 +35,10 @@ class MySqlHaikuDB {
     await this.connect();
 
     await this.createTables();
+  }
+
+  async close() {
+    await this.disconnect();
   }
 
   connect() {
@@ -49,7 +53,14 @@ class MySqlHaikuDB {
   }
 
   disconnect() {
-    this.connection.end();
+    return new Promise((resolve, reject) => {
+      this.connection.end((err) => {
+        if (err) {
+          reject(err);
+        }
+        resolve();
+      });
+    });
   }
 
   query(sql, args) {
@@ -156,9 +167,9 @@ class MySqlHaikuDB {
     await this.query('DROP TABLE authors');
     await this.query('DROP TABLE haikus');
     await this.createTables();
-    console.debug('tables created');
   }
 
+  /* eslint-disable class-methods-use-this */
   getChannel(id) {
     return { id };
   }
@@ -166,6 +177,7 @@ class MySqlHaikuDB {
   getServer(id) {
     return { id };
   }
+  /* eslint-enable class-methods-use-this */
 }
 
 exports.MySqlHaikuDB = MySqlHaikuDB;
