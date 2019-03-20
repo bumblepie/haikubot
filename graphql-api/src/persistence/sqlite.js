@@ -1,16 +1,26 @@
 const { Haiku } = require('../domain/types/Haiku');
-const config = require('../config');
 const sqlite = require('sqlite3');
 
 class SQLiteHaikuDB {
+  constructor(config) {
+    this.sqliteDBFile = config.sqliteDBFile;
+  }
   async init() {
     await this.createDatabase();
     await this.createTables();
   }
 
+  /* eslint-disable class-methods-use-this */
+  async close() {
+    return new Promise((resolve) => {
+      resolve();
+    });
+  }
+  /* eslint-enable class-methods-use-this */
+
   async createDatabase() {
     return new Promise((resolve, reject) => {
-      this.db = new sqlite.Database(config.sqliteDBFile, async (err) => {
+      this.db = new sqlite.Database(this.sqliteDBFile, async (err) => {
         if (err) {
           reject(err);
         }
@@ -70,28 +80,36 @@ class SQLiteHaikuDB {
 
   async createHaiku(haikuInput) {
     const result = await this.run(`INSERT INTO haikus (serverID, channelID)
-      values ("${haikuInput.serverId}", "${haikuInput.channelId}");`);
+      values (?, ?)`, [haikuInput.serverId, haikuInput.channelId]);
     const id = result.lastID;
 
     const authorValues = haikuInput.authors
-      .map(author => `("${id}", "${haikuInput.serverId}", "${author}")`)
+      .map(author => [id, haikuInput.serverId, author])
+      .reduce((values, nextAuthorValues) => [...values, ...nextAuthorValues], []);
+    const authorValuesPlaceholders = haikuInput.authors
+      .map(() => '(?, ?, ?)')
       .join(',');
+
     await this.run(`INSERT INTO authors (haikuID, haikuServerID, authorID)
-      values ${authorValues};`);
+      values ${authorValuesPlaceholders}`, authorValues);
 
     const lineValues = haikuInput.lines
-      .map((line, index) => `("${id}", "${haikuInput.serverId}", ${index}, "${line}")`)
+      .map((line, index) => [id, haikuInput.serverId, index, line])
+      .reduce((values, nextLineValues) => [...values, ...nextLineValues], []);
+    const lineValuesPlaceholders = haikuInput.lines
+      .map(() => '(?, ?, ?, ?)')
       .join(',');
+
     await this.run(`INSERT INTO haikuLines (haikuID, haikuServerID, lineIndex, content)
-      values ${lineValues};`);
+      values ${lineValuesPlaceholders}`, lineValues);
 
     return this.getHaiku(haikuInput.serverId, id);
   }
 
   async getHaiku(serverId, id) {
-    const haikusResult = await this.query(`SELECT * FROM haikus WHERE ID="${id}" AND serverID="${serverId}"`);
-    const linesResult = await this.query(`SELECT * FROM haikuLines WHERE haikuID="${id}" AND haikuServerID="${serverId}"`);
-    const authorsResult = await this.query(`SELECT * FROM authors WHERE haikuID="${id}" AND haikuServerID="${serverId}"`);
+    const haikusResult = await this.query('SELECT * FROM haikus WHERE ID=? AND serverID=?', [id, serverId]);
+    const linesResult = await this.query('SELECT * FROM haikuLines WHERE haikuID=? AND haikuServerID=?', [id, serverId]);
+    const authorsResult = await this.query('SELECT * FROM authors WHERE haikuID=? AND haikuServerID=?', [id, serverId]);
     if (haikusResult.length === 0) {
       throw new Error(`No haiku with id ${id} found in server ${serverId}`);
     } else if (linesResult.length !== 3) {
@@ -113,9 +131,9 @@ class SQLiteHaikuDB {
   }
 
   async clearHaiku(serverId, id) {
-    await this.run(`DELETE FROM haikuLines WHERE haikuID="${id}" AND haikuServerID="${serverId}"`);
-    await this.run(`DELETE FROM authors WHERE haikuID="${id}" AND haikuServerID="${serverId}"`);
-    await this.run(`DELETE FROM haikus WHERE ID="${id}" AND serverID="${serverId}"`);
+    await this.run('DELETE FROM haikuLines WHERE haikuID=? AND haikuServerID=?', [id, serverId]);
+    await this.run('DELETE FROM authors WHERE haikuID=? AND haikuServerID=?', [id, serverId]);
+    await this.run('DELETE FROM haikus WHERE ID=? AND serverID=?', [id, serverId]);
   }
 
   async clearAllHaikus() {
@@ -125,6 +143,7 @@ class SQLiteHaikuDB {
     await this.createTables();
   }
 
+  /* eslint-disable class-methods-use-this */
   getChannel(id) {
     return { id };
   }
@@ -132,6 +151,7 @@ class SQLiteHaikuDB {
   getServer(id) {
     return { id };
   }
+  /* eslint-ensable class-methods-use-this */
 }
 
 exports.SQLiteHaikuDB = SQLiteHaikuDB;
