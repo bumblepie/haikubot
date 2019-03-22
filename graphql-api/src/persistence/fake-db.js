@@ -3,6 +3,7 @@ const { Haiku } = require('../domain/types/Haiku');
 class FakeHaikuDB {
   async init() {
     this.haikuMap = {};
+    this.count = 0;
     return new Promise((resolve) => {
       resolve();
     });
@@ -17,41 +18,64 @@ class FakeHaikuDB {
   /* eslint-enable class-methods-use-this */
 
   createHaiku(haikuInput) {
-    const { serverId } = haikuInput;
-
-    if (!(serverId in this.haikuMap)) {
-      this.haikuMap[serverId] = { count: 0 };
-    }
-    const id = this.haikuMap[serverId].count;
-    this.haikuMap[serverId][id] = {
+    const id = this.count;
+    this.haikuMap[id] = {
       id,
       lines: haikuInput.lines,
       authors: haikuInput.authors,
       timestamp: new Date(),
       channel: haikuInput.channelId,
-      server: serverId,
+      server: haikuInput.serverId,
     };
-    this.haikuMap[serverId].count += 1;
-    return this.getHaiku(serverId, id);
+    this.count += 1;
+    return this.getHaiku(haikuInput.serverId, id);
   }
 
   getHaiku(serverId, id) {
     return new Promise((resolve, reject) => {
-      if (!this.haikuMap[serverId] || !this.haikuMap[serverId][id]) {
+      if (!this.haikuMap[id] || this.haikuMap[id].server !== serverId) {
         reject(new Error(`No haiku with id ${id} found in server ${serverId}`));
       }
-      resolve(new Haiku(id, this.haikuMap[serverId][id]));
+      resolve(new Haiku(id, this.haikuMap[id]));
     });
   }
 
   clearHaiku(serverId, id) {
-    if (serverId in this.haikuMap) {
-      delete this.haikuMap[serverId][id];
+    if (id in this.haikuMap && this.haikuMap[id].server === serverId) {
+      delete this.haikuMap[id];
     }
   }
 
   clearAllHaikus() {
     this.haikuMap = {};
+  }
+
+  searchHaikus(keywords) {
+    return new Promise((resolve, reject) => {
+      if (keywords.length === 0) {
+        reject(new Error('no keywords given'));
+      }
+
+      const validKeywordsRegex = /^\w+\*?$/;
+      const invalidKeywords = keywords.filter(keyword => !validKeywordsRegex.test(keyword));
+
+      if (invalidKeywords.length > 0) {
+        reject(new Error(`Invalid keywords: ${invalidKeywords}`));
+      }
+
+      const result = Object.values(this.haikuMap)
+        .filter((haiku) => {
+          const tokens = haiku.lines.join('\n').split(/\W/);
+          return keywords.some((keyword) => {
+            if (keyword.endsWith('*')) {
+              return tokens.some(token => token.startsWith(keyword.slice(0, -1)));
+            }
+            return tokens.includes(keyword);
+          });
+        })
+        .map(haiku => new Haiku(haiku.id, this.haikuMap[haiku.id]));
+      resolve(result);
+    });
   }
 
   /* eslint-disable class-methods-use-this */
