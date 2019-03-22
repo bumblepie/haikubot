@@ -60,7 +60,10 @@ class FakeHaikuDB {
       const invalidKeywords = keywords.filter(keyword => !validKeywordsRegex.test(keyword));
 
       if (invalidKeywords.length > 0) {
-        reject(new Error(`Invalid keywords: ${invalidKeywords}`));
+        const formattedInvalidKeywords = invalidKeywords
+          .map(keyword => `'${keyword}'`)
+          .join(', ');
+        reject(new Error(`Invalid keywords: [${formattedInvalidKeywords}]`));
       }
 
       const result = Object.values(this.haikuMap)

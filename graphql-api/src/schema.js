@@ -1,4 +1,10 @@
-const { GraphQLObjectType, GraphQLSchema, GraphQLString } = require('graphql');
+const {
+  GraphQLObjectType,
+  GraphQLSchema,
+  GraphQLString,
+  GraphQLList,
+  GraphQLNonNull,
+} = require('graphql');
 const { HaikuType } = require('./schema/types/HaikuType');
 const { HaikuInput } = require('./schema/inputs/HaikuInput');
 
@@ -13,6 +19,14 @@ const queryType = new GraphQLObjectType({
         id: { type: GraphQLString },
       },
       resolve: (_, { serverId, id }, context) => context.repo.getHaiku(serverId, id),
+    },
+
+    searchHaikus: {
+      type: new GraphQLList(HaikuType),
+      args: {
+        keywords: { type: new GraphQLList(new GraphQLNonNull(GraphQLString)) },
+      },
+      resolve: (_, { keywords }, context) => context.repo.searchHaikus(keywords),
     },
   },
 });
