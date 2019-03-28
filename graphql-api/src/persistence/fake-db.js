@@ -1,4 +1,5 @@
 const { Haiku } = require('../domain/types/Haiku');
+const { validateKeywords } = require('./common');
 
 class FakeHaikuDB {
   async init() {
@@ -52,20 +53,7 @@ class FakeHaikuDB {
 
   searchHaikus(keywords) {
     return new Promise((resolve, reject) => {
-      if (keywords.length === 0) {
-        reject(new Error('no keywords given'));
-      }
-
-      const validKeywordsRegex = /^\w+\*?$/;
-      const invalidKeywords = keywords.filter(keyword => !validKeywordsRegex.test(keyword));
-
-      if (invalidKeywords.length > 0) {
-        const formattedInvalidKeywords = invalidKeywords
-          .map(keyword => `'${keyword}'`)
-          .join(', ');
-        reject(new Error(`Invalid keywords: [${formattedInvalidKeywords}]`));
-      }
-
+      validateKeywords(keywords);
       const result = Object.values(this.haikuMap)
         .filter((haiku) => {
           const tokens = haiku.lines.join('\n').split(/\W/);
