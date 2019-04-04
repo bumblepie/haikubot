@@ -6,8 +6,8 @@
 exports.db = process.env.DB_TYPE;
 
 // MySQL config
-exports.mySQLDBName = process.env.MYSQL_DB_NAME || 'haikuDB';
-exports.mySQLHost = process.env.MYSQL_HOST;
+exports.mySQLDBName = process.env.MYSQL_DB_NAME || 'test_haiku_db';
+exports.mySQLHost = process.env.MYSQL_HOST || 'localhost';
 exports.mySQLUser = process.env.MYSQL_USER;
 exports.mySQLPassword = process.env.MYSQL_PASSWORD;
 

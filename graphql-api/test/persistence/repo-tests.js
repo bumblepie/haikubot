@@ -118,7 +118,7 @@ exports.testRepo = (repo, repoType) => {
     });
 
     describe('#getHaiku', () => {
-      it('should return a haiku that has been inserted into the fake db', async () => {
+      it('should return a haiku that has been inserted into the db', async () => {
         const createResult = await repo.createHaiku(exampleHaiku);
         const getResult = await repo.getHaiku(exampleHaiku.serverId, createResult.id);
         assert.deepEqual(getResult.authors, exampleHaiku.authors);
@@ -140,6 +140,21 @@ exports.testRepo = (repo, repoType) => {
       it('should throw an error if getting a haiku that should not exist in the db', async () => {
         const id = 'xxx';
         await assertHaikuNotInRepo(repo, id);
+      });
+
+      it('should return a haiku with the same timestamp each time it is fetched', async () => {
+        const createResult = await repo.createHaiku(exampleHaiku);
+        let getResult = await repo.getHaiku(exampleHaiku.serverId, createResult.id);
+        const firstDate = getResult.timestamp;
+        getResult = await repo.getHaiku(exampleHaiku.serverId, createResult.id);
+        const secondDate = getResult.timestamp;
+
+        // Ensure it is not undefined/null or an unexpected object
+        assert(firstDate instanceof Date);
+        assert(secondDate instanceof Date);
+
+        // Ensure they are the same value (not just the current date)
+        assert.deepEqual(firstDate, secondDate);
       });
     });
   });

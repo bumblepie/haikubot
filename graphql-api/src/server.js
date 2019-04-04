@@ -1,7 +1,7 @@
-const { schema } = require('./schema');
 const express = require('express');
 const graphqlHTTP = require('express-graphql');
 const Repo = require('./persistence/repo');
+const { schema } = require('./schema');
 
 const repo = Repo.newHaikuRepository();
 repo.init().then(() => {
