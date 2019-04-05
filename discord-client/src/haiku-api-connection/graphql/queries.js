@@ -4,6 +4,7 @@ mutation createHaiku($haiku: HaikuInput) {
     id
     authors
     lines
+    timestamp
   }
 }`;
 
@@ -13,6 +14,7 @@ query getHaikuById($serverId: String!, $haikuId: String!){
     id
     authors
     lines
+    timestamp
   }
 }
 `;

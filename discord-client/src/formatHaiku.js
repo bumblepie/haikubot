@@ -55,7 +55,7 @@ exports.formatHaiku = async (haiku, client, guild) => {
       description: `*${haiku.lines[0]}\n${haiku.lines[1]}\n${haiku.lines[2]}*`,
       url: 'https://github.com/bumblepie/haikubot',
       color: primaryAuthorColor,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date(haiku.timestamp),
       footer: {
         icon_url: client.user.avatarURL || defaultAvatar,
         text: `Haiku #${haiku.id}`,
