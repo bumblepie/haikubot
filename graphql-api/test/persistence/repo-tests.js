@@ -177,6 +177,12 @@ exports.testRepo = (repo, repoType) => {
         assert.deepEqual(searchResults, [{ id, ...exampleHaiku }]);
       });
 
+      it('should find a haiku with a specified keyword with different case in the db', async () => {
+        const { id } = await repo.createHaiku(exampleHaikuInput);
+        const searchResults = await repo.searchHaikus(['LiNE1']);
+        assert.deepEqual(searchResults, [{ id, ...exampleHaiku }]);
+      });
+
       it('should find no haikus if none match any of the specified keywords in the db', async () => {
         await repo.createHaiku(exampleHaikuInput);
         const searchResults = await repo.searchHaikus(['not', 'in', 'haikus']);

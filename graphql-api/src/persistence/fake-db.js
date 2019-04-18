@@ -54,10 +54,11 @@ class FakeHaikuDB {
   searchHaikus(keywords) {
     return new Promise((resolve, reject) => {
       validateKeywords(keywords);
+      const lowercaseKeywords = keywords.map(keyword => keyword.toLowerCase());
       const result = Object.values(this.haikuMap)
-        .filter((haiku) => {
-          const tokens = haiku.lines.join('\n').split(/\W/);
-          return keywords.some((keyword) => {
+        .filter(haiku => {
+          const tokens = haiku.lines.join('\n').split(/\W/).map(token => token.toLowerCase());
+          return lowercaseKeywords.some(keyword => {
             if (keyword.endsWith('*')) {
               return tokens.some(token => token.startsWith(keyword.slice(0, -1)));
             }
