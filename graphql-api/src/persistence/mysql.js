@@ -90,9 +90,10 @@ class MySqlHaikuDB {
     const createLinesTableSQL = `CREATE TABLE IF NOT EXISTS haikuLines
                     (haikuID MEDIUMINT NOT NULL,
                     haikuServerID VARCHAR(255) NOT NULL,
-                    lineIndex TINYINT NOT NULL,
-                    content VARCHAR(1024) NOT NULL,
-                    PRIMARY KEY (haikuID, haikuServerID, lineIndex),
+                    line1 VARCHAR(1024) NOT NULL,
+                    line2 VARCHAR(1024) NOT NULL,
+                    line3 VARCHAR(1024) NOT NULL,
+                    PRIMARY KEY (haikuID, haikuServerID),
                     FOREIGN KEY (haikuID, haikuServerID)
                       REFERENCES haikus(ID, serverID));`;
     const createAuthorsTableSQL = `CREATE TABLE IF NOT EXISTS authors
@@ -122,14 +123,14 @@ class MySqlHaikuDB {
     await this.query(mysql.format(`INSERT INTO authors (haikuID, haikuServerID, authorID)
       values ${authorValuesPlaceholders};`, authorValues));
 
-    const lineValues = haikuInput.lines
-      .map((line, index) => [id, haikuInput.serverId, index, line])
-      .reduce((values, nextLineValues) => [...values, ...nextLineValues], []);
-    const lineValuesPlaceholders = haikuInput.lines
-      .map(() => '(?, ?, ?, ?)')
-      .join(',');
-    await this.query(mysql.format(`INSERT INTO haikuLines (haikuID, haikuServerID, lineIndex, content)
-      values ${lineValuesPlaceholders};`, lineValues));
+    const lineValues = [id,
+      haikuInput.serverId,
+      haikuInput.lines[0],
+      haikuInput.lines[1],
+      haikuInput.lines[2],
+    ];
+    await this.query(mysql.format(`INSERT INTO haikuLines (haikuID, haikuServerID, line1, line2, line3)
+      values (?, ?, ?, ?, ?)`, lineValues));
 
     return this.getHaiku(haikuInput.serverId, id);
   }
@@ -140,14 +141,11 @@ class MySqlHaikuDB {
     const authorsResult = await this.query(mysql.format('SELECT * FROM authors WHERE haikuID=? AND haikuServerID=?', [id, serverId]));
     if (haikusResult.length === 0) {
       throw new Error(`No haiku with id ${id} found in server ${serverId}`);
-    } else if (linesResult.length !== 3) {
-      throw new Error(`Haiku with id ${id} in server ${serverId} has incorrect number of lines`);
     } else if (authorsResult.length === 0) {
       throw new Error(`Haiku with id ${id} in server ${serverId} has no author`);
     } else {
       const haiku = haikusResult[0];
-      const lines = linesResult.sort((result1, result2) => result1.lineIndex - result2.lineIndex)
-        .map(result => result.content);
+      const lines = [linesResult[0].line1, linesResult[0].line2, linesResult[0].line3];
       const authors = authorsResult.map(result => result.authorID);
       return new Haiku(haiku.ID, {
         lines,

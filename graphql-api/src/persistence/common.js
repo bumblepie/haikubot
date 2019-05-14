@@ -1,5 +1,5 @@
 exports.validateKeywords = (keywords) => {
-  if (keywords.length == 0) {
+  if (keywords.length === 0) {
     throw new Error('no keywords given');
   }
 
@@ -12,4 +12,4 @@ exports.validateKeywords = (keywords) => {
       .join(', ');
     throw new Error(`Invalid keywords: [${formattedInvalidKeywords}]`);
   }
-}
+};

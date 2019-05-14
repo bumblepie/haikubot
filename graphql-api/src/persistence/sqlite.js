@@ -44,7 +44,7 @@ class SQLiteHaikuDB {
                     FOREIGN KEY(lines)
                       REFERENCES haikuLines(rowid));`;
     const createAuthorsTableSQL = `CREATE TABLE IF NOT EXISTS authors
-                    (haikuID MEDIUMINT NOT NULL,
+                    (haikuID INTEGER NOT NULL,
                     authorID VARCHAR(255) NOT NULL,
                     PRIMARY KEY (haikuID, authorID),
                     FOREIGN KEY (haikuID)
@@ -134,17 +134,17 @@ class SQLiteHaikuDB {
     // Lower case the keywords to avoid conflicts with SQLite FTS reserved words such as 'AND'
     // Search is case insensitive so it shoudl not affect results
     const lowercaseKeywords = keywords.map(keyword => keyword.toLowerCase());
-    
-    const searchResults = await this.query(`SELECT rowid FROM haikuLines WHERE haikuLines MATCH ? ORDER BY rank`, [lowercaseKeywords.join(' OR ')]);
+
+    const searchResults = await this.query('SELECT rowid FROM haikuLines WHERE haikuLines MATCH ? ORDER BY rank', [lowercaseKeywords.join(' OR ')]);
     if (searchResults.length === 0) {
       return [];
     }
     const lineIDs = searchResults.map(result => result.rowid);
-    const lineIDPlaceholders = lineIDs.map(id => '?')
+    const lineIDPlaceholders = lineIDs.map(() => '?')
       .join(', ');
     const haikusResult = await this.query(`SELECT * FROM haikus WHERE lines IN (${lineIDPlaceholders})`, lineIDs);
-    const haikus = haikusResult.map(async haiku => await this.getHaiku(haiku.serverID, haiku.ID));
-    return await Promise.all(haikus);
+    const haikus = haikusResult.map(haiku => this.getHaiku(haiku.serverID, haiku.ID));
+    return Promise.all(haikus);
   }
 
   async clearHaiku(serverId, id) {
