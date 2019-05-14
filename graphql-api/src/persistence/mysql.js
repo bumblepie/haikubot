@@ -1,5 +1,6 @@
 const mysql = require('mysql');
 const { Haiku } = require('../domain/types/Haiku');
+const { validateKeywords } = require('./common');
 
 class MySqlHaikuDB {
   constructor(config) {
@@ -95,7 +96,8 @@ class MySqlHaikuDB {
                     line3 VARCHAR(1024) NOT NULL,
                     PRIMARY KEY (haikuID, haikuServerID),
                     FOREIGN KEY (haikuID, haikuServerID)
-                      REFERENCES haikus(ID, serverID));`;
+                      REFERENCES haikus(ID, serverID),
+                    FULLTEXT(line1, line2, line3));`;
     const createAuthorsTableSQL = `CREATE TABLE IF NOT EXISTS authors
                     (haikuID MEDIUMINT NOT NULL,
                     haikuServerID VARCHAR(255) NOT NULL,
@@ -155,6 +157,17 @@ class MySqlHaikuDB {
         server: haiku.serverID,
       });
     }
+  }
+
+  async searchHaikus(keywords) {
+    validateKeywords(keywords);
+
+    const searchResults = await this.query('SELECT * FROM haikuLines WHERE MATCH (line1, line2, line3) AGAINST (? IN BOOLEAN MODE)', [keywords.join(' ')]);
+    if (searchResults.length === 0) {
+      return [];
+    }
+    const haikus = searchResults.map(haiku => this.getHaiku(haiku.haikuServerID, haiku.haikuID));
+    return Promise.all(haikus);
   }
 
   async clearHaiku(serverId, id) {
