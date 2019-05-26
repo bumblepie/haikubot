@@ -24,7 +24,7 @@ commandMap.search = async (context, args) => {
     throw Error('No search keywords provided');
   }
   try {
-    const searchResults = await context.api.searchHaikus(args);
+    const searchResults = await context.api.searchHaikus(context.server.id, args);
     if (searchResults.length === 0) {
       await context.channel.send(`No results found for '${args.join(' ')}'`);
     } else {

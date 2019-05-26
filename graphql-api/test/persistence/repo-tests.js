@@ -171,62 +171,87 @@ exports.testRepo = (repo, repoType) => {
     });
 
     describe('#searchHaikus', () => {
+      // Set up haiku in same server for convenience here
+      const { serverId } = exampleHaikuInput;
+      const exampleHaikuInput2SameServer = {
+        ...exampleHaikuInput2,
+        serverId,
+      };
+
+      const exampleHaiku2SameServer = {
+        ...exampleHaiku2,
+        server: serverId,
+      };
+
       it('should find a haiku with a specified keyword in the db', async () => {
         const { id } = await repo.createHaiku(exampleHaikuInput);
-        const searchResults = await repo.searchHaikus(['line1']);
+        const searchResults = await repo.searchHaikus(serverId, ['line1']);
         assert.deepEqual(searchResults, [{ id, ...exampleHaiku }]);
       });
 
       it('should find a haiku with a specified keyword with different case in the db', async () => {
         const { id } = await repo.createHaiku(exampleHaikuInput);
-        const searchResults = await repo.searchHaikus(['LiNE1']);
+        const searchResults = await repo.searchHaikus(serverId, ['LiNE1']);
         assert.deepEqual(searchResults, [{ id, ...exampleHaiku }]);
       });
 
       it('should find no haikus if none match any of the specified keywords in the db', async () => {
         await repo.createHaiku(exampleHaikuInput);
-        const searchResults = await repo.searchHaikus(['not', 'in', 'haikus']);
+        const searchResults = await repo.searchHaikus(serverId, ['not', 'in', 'haikus']);
         assert.deepEqual(searchResults, []);
       });
 
       it('should find only haikus with a specified keyword in the db', async () => {
         const { id } = await repo.createHaiku(exampleHaikuInput);
-        await repo.createHaiku(exampleHaikuInput2);
-        const searchResults = await repo.searchHaikus(['line1']);
+        await repo.createHaiku(exampleHaikuInput2SameServer);
+        const searchResults = await repo.searchHaikus(serverId, ['line1']);
         assert.deepEqual(searchResults, [{ id, ...exampleHaiku }]);
       });
 
       it('should find multiple haikus if they all match a specified keyword in the db', async () => {
         const { id } = await repo.createHaiku(exampleHaikuInput);
         const id2 = (await repo.createHaiku(exampleHaikuInput)).id;
-        const searchResults = await repo.searchHaikus(['line1']);
+        const searchResults = await repo.searchHaikus(serverId, ['line1']);
         assert.deepEqual(searchResults, [{ id, ...exampleHaiku }, { id: id2, ...exampleHaiku }]);
       });
 
       it('should find haikus if they all match a prefix keyword in the db', async () => {
         const { id } = await repo.createHaiku(exampleHaikuInput);
-        const id2 = (await repo.createHaiku(exampleHaikuInput2)).id;
-        const searchResults = await repo.searchHaikus(['line*']);
-        assert.deepEqual(searchResults, [{ id, ...exampleHaiku }, { id: id2, ...exampleHaiku2 }]);
+        const id2 = (await repo.createHaiku(exampleHaikuInput2SameServer)).id;
+        const searchResults = await repo.searchHaikus(serverId, ['line*']);
+        assert.deepEqual(searchResults, [
+          { id, ...exampleHaiku },
+          { id: id2, ...exampleHaiku2SameServer },
+        ]);
+      });
+
+      it('should find only haikus in the same server as the request', async () => {
+        const { id } = await repo.createHaiku(exampleHaikuInput);
+        await repo.createHaiku(exampleHaikuInput2);
+        const searchResults = await repo.searchHaikus(serverId, ['line*']);
+        assert.deepEqual(searchResults, [{ id, ...exampleHaiku }]);
       });
 
       it('should find multiple haikus if they all match any of the specified keywords in the db', async () => {
         const { id } = await repo.createHaiku(exampleHaikuInput);
-        const id2 = (await repo.createHaiku(exampleHaikuInput2)).id;
-        const searchResults = await repo.searchHaikus(['line1', 'line4']);
-        assert.deepEqual(searchResults, [{ id, ...exampleHaiku }, { id: id2, ...exampleHaiku2 }]);
+        const id2 = (await repo.createHaiku(exampleHaikuInput2SameServer)).id;
+        const searchResults = await repo.searchHaikus(serverId, ['line1', 'line4']);
+        assert.deepEqual(searchResults, [
+          { id, ...exampleHaiku },
+          { id: id2, ...exampleHaiku2SameServer },
+        ]);
       });
 
       it('should throw an error if no keywords are given', async () => {
-        await assert.rejects(() => repo.searchHaikus([], Error('No keywords given')));
+        await assert.rejects(() => repo.searchHaikus(serverId, [], Error('No keywords given')));
       });
 
       it('should throw an error any invalid keywords are given', async () => {
         // Valid inputs should not throw errors
-        await repo.searchHaikus(['valid', 'also_valid*']);
+        await repo.searchHaikus(serverId, ['valid', 'also_valid*']);
 
-        await assert.rejects(() => repo.searchHaikus(['asd!', 'as?d', '#asd', '\'asd', ''], Error('Invalid keywords: [\'asd!\', \'as?d\', \'#asd\', \'\\\'asd\', \'\']')));
-        await assert.rejects(() => repo.searchHaikus(['valid', 'inval!d', 'also_valid*'], Error('Invalid keywords: [\'inval!d\']')));
+        await assert.rejects(() => repo.searchHaikus(serverId, ['asd!', 'as?d', '#asd', '\'asd', ''], Error('Invalid keywords: [\'asd!\', \'as?d\', \'#asd\', \'\\\'asd\', \'\']')));
+        await assert.rejects(() => repo.searchHaikus(serverId, ['valid', 'inval!d', 'also_valid*'], Error('Invalid keywords: [\'inval!d\']')));
       });
     });
   });

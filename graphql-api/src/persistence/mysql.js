@@ -87,24 +87,22 @@ class MySqlHaikuDB {
                     serverID VARCHAR(255) NOT NULL,
                     channelID VARCHAR(255) NOT NULL,
                     creationTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    PRIMARY KEY (ID, serverID));`;
+                    PRIMARY KEY (ID));`;
     const createLinesTableSQL = `CREATE TABLE IF NOT EXISTS haikuLines
                     (haikuID MEDIUMINT NOT NULL,
-                    haikuServerID VARCHAR(255) NOT NULL,
                     line1 VARCHAR(1024) NOT NULL,
                     line2 VARCHAR(1024) NOT NULL,
                     line3 VARCHAR(1024) NOT NULL,
-                    PRIMARY KEY (haikuID, haikuServerID),
-                    FOREIGN KEY (haikuID, haikuServerID)
-                      REFERENCES haikus(ID, serverID),
+                    PRIMARY KEY (haikuID),
+                    FOREIGN KEY (haikuID)
+                      REFERENCES haikus(ID),
                     FULLTEXT(line1, line2, line3));`;
     const createAuthorsTableSQL = `CREATE TABLE IF NOT EXISTS authors
                     (haikuID MEDIUMINT NOT NULL,
-                    haikuServerID VARCHAR(255) NOT NULL,
                     authorID VARCHAR(255) NOT NULL,
-                    PRIMARY KEY (haikuID, haikuServerID, authorID),
-                    FOREIGN KEY (haikuID, haikuServerID)
-                      REFERENCES haikus(ID, serverID));`;
+                    PRIMARY KEY (haikuID, authorID),
+                    FOREIGN KEY (haikuID)
+                      REFERENCES haikus(ID));`;
     await this.query(createHaikusTableSQL);
     await this.query(createLinesTableSQL);
     await this.query(createAuthorsTableSQL);
@@ -116,31 +114,30 @@ class MySqlHaikuDB {
     const id = result.insertId;
 
     const authorValues = haikuInput.authors
-      .map(author => [id, haikuInput.serverId, author])
+      .map(author => [id, author])
       .reduce((values, nextAuthorValues) => [...values, ...nextAuthorValues], []);
     const authorValuesPlaceholders = haikuInput.authors
-      .map(() => '(?, ?, ?)')
+      .map(() => '(?, ?)')
       .join(',');
 
-    await this.query(mysql.format(`INSERT INTO authors (haikuID, haikuServerID, authorID)
+    await this.query(mysql.format(`INSERT INTO authors (haikuID, authorID)
       values ${authorValuesPlaceholders};`, authorValues));
 
     const lineValues = [id,
-      haikuInput.serverId,
       haikuInput.lines[0],
       haikuInput.lines[1],
       haikuInput.lines[2],
     ];
-    await this.query(mysql.format(`INSERT INTO haikuLines (haikuID, haikuServerID, line1, line2, line3)
-      values (?, ?, ?, ?, ?)`, lineValues));
+    await this.query(mysql.format(`INSERT INTO haikuLines (haikuID, line1, line2, line3)
+      values (?, ?, ?, ?)`, lineValues));
 
     return this.getHaiku(haikuInput.serverId, id);
   }
 
   async getHaiku(serverId, id) {
     const haikusResult = await this.query(mysql.format('SELECT * FROM haikus WHERE ID=? AND serverID=?', [id, serverId]));
-    const linesResult = await this.query(mysql.format('SELECT * FROM haikuLines WHERE haikuID=? AND haikuServerID=?', [id, serverId]));
-    const authorsResult = await this.query(mysql.format('SELECT * FROM authors WHERE haikuID=? AND haikuServerID=?', [id, serverId]));
+    const linesResult = await this.query(mysql.format('SELECT * FROM haikuLines WHERE haikuID=?', [id]));
+    const authorsResult = await this.query(mysql.format('SELECT * FROM authors WHERE haikuID=?', [id]));
     if (haikusResult.length === 0) {
       throw new Error(`No haiku with id ${id} found in server ${serverId}`);
     } else if (authorsResult.length === 0) {
@@ -159,20 +156,23 @@ class MySqlHaikuDB {
     }
   }
 
-  async searchHaikus(keywords) {
+  async searchHaikus(serverId, keywords) {
     validateKeywords(keywords);
 
-    const searchResults = await this.query('SELECT * FROM haikuLines WHERE MATCH (line1, line2, line3) AGAINST (? IN BOOLEAN MODE)', [keywords.join(' ')]);
+    const searchResults = await this.query(`SELECT haikus.ID, haikuLines.* FROM haikuLines JOIN haikus
+      ON haikuLines.haikuID = haikus.ID
+      WHERE haikus.serverID = ?
+      AND MATCH (haikuLines.line1, haikuLines.line2, haikuLines.line3) AGAINST (? IN BOOLEAN MODE)`, [serverId, keywords.join(' ')]);
     if (searchResults.length === 0) {
       return [];
     }
-    const haikus = searchResults.map(haiku => this.getHaiku(haiku.haikuServerID, haiku.haikuID));
+    const haikus = searchResults.map(haiku => this.getHaiku(serverId, haiku.haikuID));
     return Promise.all(haikus);
   }
 
   async clearHaiku(serverId, id) {
-    await this.query(mysql.format('DELETE FROM haikuLines WHERE haikuID=? AND haikuServerID=?', [id, serverId]));
-    await this.query(mysql.format('DELETE FROM authors WHERE haikuID=? AND haikuServerID=?', [id, serverId]));
+    await this.query(mysql.format('DELETE FROM haikuLines WHERE haikuID=?', [id]));
+    await this.query(mysql.format('DELETE FROM authors WHERE haikuID=?', [id]));
     await this.query(mysql.format('DELETE FROM haikus WHERE ID=? AND serverID=?', [id, serverId]));
   }
 

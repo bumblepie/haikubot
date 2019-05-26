@@ -1,5 +1,6 @@
 const express = require('express');
 const graphqlHTTP = require('express-graphql');
+const { schema } = require('./schema');
 const Repo = require('./persistence/repo');
 const { schema } = require('./schema');
 

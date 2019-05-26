@@ -19,8 +19,8 @@ query getHaikuById($serverId: String!, $haikuId: String!){
 }`;
 
 exports.searchHaikusQuery = `
-query searchHaikus($keywords: [String!]){
-  searchHaikus(keywords: $keywords) {
+query searchHaikus($serverId: String!, $keywords: [String!]){
+  searchHaikus(serverId: $serverId, keywords: $keywords) {
     id
     authors
     lines

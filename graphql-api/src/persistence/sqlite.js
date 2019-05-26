@@ -128,7 +128,7 @@ class SQLiteHaikuDB {
     });
   }
 
-  async searchHaikus(keywords) {
+  async searchHaikus(serverID, keywords) {
     validateKeywords(keywords);
 
     // Lower case the keywords to avoid conflicts with SQLite FTS reserved words such as 'AND'
@@ -142,7 +142,7 @@ class SQLiteHaikuDB {
     const lineIDs = searchResults.map(result => result.rowid);
     const lineIDPlaceholders = lineIDs.map(() => '?')
       .join(', ');
-    const haikusResult = await this.query(`SELECT * FROM haikus WHERE lines IN (${lineIDPlaceholders})`, lineIDs);
+    const haikusResult = await this.query(`SELECT * FROM haikus WHERE lines IN (${lineIDPlaceholders}) AND serverID = ?`, [...lineIDs, serverID]);
     const haikus = haikusResult.map(haiku => this.getHaiku(haiku.serverID, haiku.ID));
     return Promise.all(haikus);
   }

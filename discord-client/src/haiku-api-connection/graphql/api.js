@@ -59,8 +59,8 @@ class GraphqlApi {
     });
   }
 
-  searchHaikus(serverId, haikuId) {
-    const requestBody = queryFactory.searchHaikusQuery(serverId, haikuId);
+  searchHaikus(serverId, keywords) {
+    const requestBody = queryFactory.searchHaikusQuery(serverId, keywords);
     const requestOptions = {
       method: 'POST',
       url: this.baseUrl,
