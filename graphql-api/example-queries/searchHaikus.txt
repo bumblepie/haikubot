@@ -1,0 +1,7 @@
+query searchHaikus {
+  searchHaikus(keywords: ["test", "keyword", "prefix*"]) {
+    id,
+    authors,
+    lines
+  }
+}

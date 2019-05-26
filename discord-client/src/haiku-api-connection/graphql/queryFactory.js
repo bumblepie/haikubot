@@ -21,3 +21,12 @@ exports.getHaikuByIdQuery = (serverId, haikuId) => (
       haikuId,
     },
   });
+
+exports.searchHaikusQuery = (serverId, keywords) => (
+  {
+    query: queries.searchHaikusQuery,
+    variables: {
+      serverId,
+      keywords,
+    },
+  });

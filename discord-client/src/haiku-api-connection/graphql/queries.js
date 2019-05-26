@@ -16,5 +16,13 @@ query getHaikuById($serverId: String!, $haikuId: String!){
     lines
     timestamp
   }
-}
-`;
+}`;
+
+exports.searchHaikusQuery = `
+query searchHaikus($serverId: String!, $keywords: [String!]){
+  searchHaikus(serverId: $serverId, keywords: $keywords) {
+    id
+    authors
+    lines
+  }
+}`;

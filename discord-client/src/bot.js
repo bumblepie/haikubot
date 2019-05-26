@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { SearchResultsService } = require('./searchResultsService');
 const { ChannelProcessor } = require('./channelProcessor');
 const { discordApiToken, graphqlApiBaseUrl } = require('./config');
 const { formatHaiku } = require('./formatHaiku');
@@ -38,6 +39,8 @@ const processMessage = (message) => {
   channelProcessorMap[channelID].processMessage(message);
 };
 
+const searchResultsService = new SearchResultsService();
+
 client.on('ready', () => {
   console.log('Bot is ready');
 });
@@ -62,6 +65,7 @@ client.on('message', async (message) => {
       channel: message.channel,
       server: message.guild,
       client,
+      searchResultsService,
     };
 
     try {
@@ -73,6 +77,26 @@ client.on('message', async (message) => {
   } else {
     processMessage(message);
   }
+});
+
+client.on('messageReactionAdd', async (messageReaction, user) => {
+  const { emoji, message } = messageReaction;
+  const context = {
+    client,
+    server: message.guild,
+  };
+  // Ignore bot reactions (including our own)
+  if (user.bot) {
+    return;
+  }
+  switch (emoji.name) {
+    case '⬅': searchResultsService.switchResults(message, -1, context);
+      break;
+    case '➡': searchResultsService.switchResults(message, 1, context);
+      break;
+    default:
+  }
+  messageReaction.remove(user);
 });
 
 client.login(discordApiToken);

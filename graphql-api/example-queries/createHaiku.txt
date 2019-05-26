@@ -12,7 +12,7 @@ mutation createHaiku($haiku: HaikuInput) {
   "haiku": {
   	"lines": ["xxx", "yyy", "zzz"],
     "authors": ["Author"],
-		"channel": "channelID1",
-		"server": "serverID1"
+		"channelId": "channelID1",
+		"serverId": "serverID1"
   }
 }
