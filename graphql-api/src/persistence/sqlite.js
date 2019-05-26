@@ -1,10 +1,11 @@
-const { Haiku } = require('../domain/types/Haiku');
 const sqlite = require('sqlite3');
+const { Haiku } = require('../domain/types/Haiku');
 
 class SQLiteHaikuDB {
   constructor(config) {
     this.sqliteDBFile = config.sqliteDBFile;
   }
+
   async init() {
     await this.createDatabase();
     await this.createTables();
@@ -124,6 +125,8 @@ class SQLiteHaikuDB {
       return new Haiku(haiku.ID, {
         lines,
         authors,
+        // Ensure timestamp is in UTC time - SQLite returns YYYY-MM-DD HH:MM:SS.SSS
+        timestamp: new Date(`${haiku.creationTimestamp} UTC`),
         channel: haiku.channelID,
         server: haiku.serverID,
       });

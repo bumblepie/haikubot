@@ -4,6 +4,7 @@ const {
   GraphQLString,
   GraphQLNonNull,
 } = require('graphql');
+const { GraphQLDateTime } = require('graphql-iso-date');
 const { ServerType } = require('./ServerType');
 const { ChannelType } = require('./ChannelType');
 
@@ -21,12 +22,16 @@ const HaikuType = new GraphQLObjectType({
       type: ChannelType,
       resolve: (haiku, _, context) => context.repo.getChannel(haiku.channel),
     },
+    timestamp: {
+      type: new GraphQLNonNull(GraphQLDateTime),
+    },
     lines: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLString))),
     },
     authors: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLString))),
     },
+
   }),
 });
 

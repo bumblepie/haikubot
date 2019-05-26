@@ -1,5 +1,5 @@
-const { Haiku } = require('../domain/types/Haiku');
 const mysql = require('mysql');
+const { Haiku } = require('../domain/types/Haiku');
 
 class MySqlHaikuDB {
   constructor(config) {
@@ -152,6 +152,7 @@ class MySqlHaikuDB {
       return new Haiku(haiku.ID, {
         lines,
         authors,
+        timestamp: new Date(haiku.creationTimestamp),
         channel: haiku.channelID,
         server: haiku.serverID,
       });

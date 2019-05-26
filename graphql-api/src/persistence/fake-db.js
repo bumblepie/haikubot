@@ -1,7 +1,6 @@
 const { Haiku } = require('../domain/types/Haiku');
 
 class FakeHaikuDB {
-
   async init() {
     this.haikuMap = {};
     return new Promise((resolve) => {
@@ -28,6 +27,7 @@ class FakeHaikuDB {
       id,
       lines: haikuInput.lines,
       authors: haikuInput.authors,
+      timestamp: new Date(),
       channel: haikuInput.channelId,
       server: serverId,
     };
