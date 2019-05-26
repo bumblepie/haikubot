@@ -24,5 +24,6 @@ query searchHaikus($serverId: String!, $keywords: [String!]){
     id
     authors
     lines
+    timestamp
   }
 }`;
