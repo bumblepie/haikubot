@@ -89,14 +89,17 @@ client.on('messageReactionAdd', async (messageReaction, user) => {
   if (user.bot) {
     return;
   }
-  switch (emoji.name) {
-    case '⬅': searchResultsService.switchResults(message, -1, context);
-      break;
-    case '➡': searchResultsService.switchResults(message, 1, context);
-      break;
-    default:
+  if (message.author.id === client.user.id && searchResultsService.hasMessage(message.id)) {
+    switch (emoji.name) {
+      case '⬅': searchResultsService.switchResults(message, -1, context);
+        messageReaction.remove(user);
+        break;
+      case '➡': searchResultsService.switchResults(message, 1, context);
+        messageReaction.remove(user);
+        break;
+      default:
+    }
   }
-  messageReaction.remove(user);
 });
 
 client.login(discordApiToken);

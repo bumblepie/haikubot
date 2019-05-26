@@ -42,6 +42,10 @@ class SearchResultsService {
       this.searchMessages.set(message.id, { searchResults, currentIndex: newIndex });
     }
   }
+
+  hasMessage(messageId) {
+    return this.searchMessages.has(messageId);
+  }
 }
 
 exports.SearchResultsService = SearchResultsService;
