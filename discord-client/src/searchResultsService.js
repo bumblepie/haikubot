@@ -6,7 +6,7 @@ class SearchResultsService {
   }
 
   static messageFromResults(searchResults, index) {
-    return `Found ${searchResults.length} haiku${searchResults.length !== 1 ? 's' : ''}:
+    return `Found ${searchResults.length} haiku:
             Showing result (${index + 1})`;
   }
 
