@@ -133,20 +133,24 @@ exports.testRepo = (repo, repoType) => {
 
     describe('#getHaiku', () => {
       it('should return a haiku that has been inserted into the fake db', async () => {
-        const { id } = await repo.createHaiku(exampleHaikuInput);
+        const { id, timestamp } = await repo.createHaiku(exampleHaikuInput);
         const getResult = await repo.getHaiku(exampleHaikuInput.serverId, id);
-        assert.deepEqual(getResult, { id, ...exampleHaiku });
+        assert.deepEqual(getResult, { id, timestamp, ...exampleHaiku });
       });
 
       it('should return the correct haiku', async () => {
-        const { id } = await repo.createHaiku(exampleHaikuInput);
+        const { id, timestamp } = await repo.createHaiku(exampleHaikuInput);
         const createResult = await repo.createHaiku(exampleHaikuInput2);
         const id2 = createResult.id;
         let getResult = await repo.getHaiku(exampleHaikuInput.serverId, id);
-        assert.deepEqual(getResult, { id, ...exampleHaiku });
+        assert.deepEqual(getResult, { id, timestamp, ...exampleHaiku });
 
         getResult = await repo.getHaiku(exampleHaikuInput2.serverId, id2);
-        assert.deepEqual(getResult, { id: id2, ...exampleHaiku2 });
+        assert.deepEqual(getResult, {
+          id: id2,
+          timestamp: createResult.timestamp,
+          ...exampleHaiku2,
+        });
       });
 
       it('should throw an error if getting a haiku that should not exist in the db', async () => {
@@ -155,10 +159,10 @@ exports.testRepo = (repo, repoType) => {
       });
 
       it('should return a haiku with the same timestamp each time it is fetched', async () => {
-        const createResult = await repo.createHaiku(exampleHaiku);
-        let getResult = await repo.getHaiku(exampleHaiku.serverId, createResult.id);
+        const createResult = await repo.createHaiku(exampleHaikuInput);
+        let getResult = await repo.getHaiku(exampleHaikuInput.serverId, createResult.id);
         const firstDate = getResult.timestamp;
-        getResult = await repo.getHaiku(exampleHaiku.serverId, createResult.id);
+        getResult = await repo.getHaiku(exampleHaikuInput.serverId, createResult.id);
         const secondDate = getResult.timestamp;
 
         // Ensure it is not undefined/null or an unexpected object
@@ -184,15 +188,15 @@ exports.testRepo = (repo, repoType) => {
       };
 
       it('should find a haiku with a specified keyword in the db', async () => {
-        const { id } = await repo.createHaiku(exampleHaikuInput);
+        const { id, timestamp } = await repo.createHaiku(exampleHaikuInput);
         const searchResults = await repo.searchHaikus(serverId, ['line1']);
-        assert.deepEqual(searchResults, [{ id, ...exampleHaiku }]);
+        assert.deepEqual(searchResults, [{ id, timestamp, ...exampleHaiku }]);
       });
 
       it('should find a haiku with a specified keyword with different case in the db', async () => {
-        const { id } = await repo.createHaiku(exampleHaikuInput);
+        const { id, timestamp } = await repo.createHaiku(exampleHaikuInput);
         const searchResults = await repo.searchHaikus(serverId, ['LiNE1']);
-        assert.deepEqual(searchResults, [{ id, ...exampleHaiku }]);
+        assert.deepEqual(searchResults, [{ id, timestamp, ...exampleHaiku }]);
       });
 
       it('should find no haikus if none match any of the specified keywords in the db', async () => {
@@ -202,43 +206,46 @@ exports.testRepo = (repo, repoType) => {
       });
 
       it('should find only haikus with a specified keyword in the db', async () => {
-        const { id } = await repo.createHaiku(exampleHaikuInput);
+        const { id, timestamp } = await repo.createHaiku(exampleHaikuInput);
         await repo.createHaiku(exampleHaikuInput2SameServer);
         const searchResults = await repo.searchHaikus(serverId, ['line1']);
-        assert.deepEqual(searchResults, [{ id, ...exampleHaiku }]);
+        assert.deepEqual(searchResults, [{ id, timestamp, ...exampleHaiku }]);
       });
 
       it('should find multiple haikus if they all match a specified keyword in the db', async () => {
-        const { id } = await repo.createHaiku(exampleHaikuInput);
-        const id2 = (await repo.createHaiku(exampleHaikuInput)).id;
+        const { id, timestamp } = await repo.createHaiku(exampleHaikuInput);
+        const result2 = await repo.createHaiku(exampleHaikuInput);
         const searchResults = await repo.searchHaikus(serverId, ['line1']);
-        assert.deepEqual(searchResults, [{ id, ...exampleHaiku }, { id: id2, ...exampleHaiku }]);
+        assert.deepEqual(searchResults, [
+          { id, timestamp, ...exampleHaiku },
+          { id: result2.id, timestamp: result2.timestamp, ...exampleHaiku },
+        ]);
       });
 
       it('should find haikus if they all match a prefix keyword in the db', async () => {
-        const { id } = await repo.createHaiku(exampleHaikuInput);
-        const id2 = (await repo.createHaiku(exampleHaikuInput2SameServer)).id;
+        const { id, timestamp } = await repo.createHaiku(exampleHaikuInput);
+        const result2 = await repo.createHaiku(exampleHaikuInput2SameServer);
         const searchResults = await repo.searchHaikus(serverId, ['line*']);
         assert.deepEqual(searchResults, [
-          { id, ...exampleHaiku },
-          { id: id2, ...exampleHaiku2SameServer },
+          { id, timestamp, ...exampleHaiku },
+          { id: result2.id, timestamp: result2.timestamp, ...exampleHaiku2SameServer },
         ]);
       });
 
       it('should find only haikus in the same server as the request', async () => {
-        const { id } = await repo.createHaiku(exampleHaikuInput);
+        const { id, timestamp } = await repo.createHaiku(exampleHaikuInput);
         await repo.createHaiku(exampleHaikuInput2);
         const searchResults = await repo.searchHaikus(serverId, ['line*']);
-        assert.deepEqual(searchResults, [{ id, ...exampleHaiku }]);
+        assert.deepEqual(searchResults, [{ id, timestamp, ...exampleHaiku }]);
       });
 
       it('should find multiple haikus if they all match any of the specified keywords in the db', async () => {
-        const { id } = await repo.createHaiku(exampleHaikuInput);
-        const id2 = (await repo.createHaiku(exampleHaikuInput2SameServer)).id;
+        const { id, timestamp } = await repo.createHaiku(exampleHaikuInput);
+        const result2 = await repo.createHaiku(exampleHaikuInput2SameServer);
         const searchResults = await repo.searchHaikus(serverId, ['line1', 'line4']);
         assert.deepEqual(searchResults, [
-          { id, ...exampleHaiku },
-          { id: id2, ...exampleHaiku2SameServer },
+          { id, timestamp, ...exampleHaiku },
+          { id: result2.id, timestamp: result2.timestamp, ...exampleHaiku2SameServer },
         ]);
       });
 
