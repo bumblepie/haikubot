@@ -1,5 +1,6 @@
 const { formatHaiku } = require('./formatHaiku');
 const { countSyllables } = require('./countSyllables');
+const { searchResultsCommand } = require('./commands/searchResults');
 
 const commandMap = {};
 
@@ -19,22 +20,7 @@ commandMap.gethaikubyid = async (context, args) => {
   }
 };
 
-commandMap.search = async (context, args) => {
-  if (args.length === 0) {
-    throw Error('No search keywords provided');
-  }
-  try {
-    const searchResults = await context.api.searchHaikus(context.server.id, args);
-    if (searchResults.length === 0) {
-      await context.channel.send(`No results found for '${args.join(' ')}'`);
-    } else {
-      await context.searchResultsService.addSearchResults(searchResults, context);
-    }
-  } catch (error) {
-    console.log(`Caught error ${JSON.stringify(error)}, sending simplified error message to discord`);
-    await context.channel.send('An error occurred while searching for haikus');
-  }
-};
+commandMap.search = searchResultsCommand;
 
 commandMap.count = (context, args) => {
   const value = args.join(' ');
