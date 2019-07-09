@@ -30,3 +30,12 @@ exports.searchHaikusQuery = (serverId, keywords) => (
       keywords,
     },
   });
+
+exports.deleteHaikuMutation = (serverId, haikuId) => (
+  {
+    query: queries.deleteHaikuMutation,
+    variables: {
+      serverId,
+      haikuId,
+    },
+  });

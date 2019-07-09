@@ -13,6 +13,7 @@ class MessagesMap {
    *   It should have the signature (messageReaction, user, state) => newState
    */
   addMessage(messageId, initialState, onReact) {
+    console.log({ messageId, initialState, onReact });
     this.messages.set(messageId, {
       state: initialState,
       onReact,

@@ -27,3 +27,8 @@ query searchHaikus($serverId: String!, $keywords: [String!]){
     timestamp
   }
 }`;
+
+exports.deleteHaikuMutation = `
+mutation deleteHaiku($serverId: String!, $haikuId: String!){
+  deleteHaiku(serverId: $serverId, id: $haikuId)
+}`;

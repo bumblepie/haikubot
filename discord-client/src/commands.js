@@ -1,6 +1,7 @@
 const { formatHaiku } = require('./formatHaiku');
 const { countSyllables } = require('./countSyllables');
 const { searchResultsCommand } = require('./commands/searchResults');
+const { deleteCommand } = require('./commands/delete');
 
 const commandMap = {};
 
@@ -39,3 +40,5 @@ exports.tryCommand = (context, args) => {
   }
   return commandMap[lowercaseCommandName](context, commandArgs);
 };
+
+commandMap.delete = deleteCommand;
