@@ -41,9 +41,11 @@ class FakeHaikuDB {
     });
   }
 
-  clearHaiku(serverId, id) {
+  async clearHaiku(serverId, id) {
     if (id in this.haikuMap && this.haikuMap[id].server === serverId) {
       delete this.haikuMap[id];
+    } else {
+      throw new Error(`No haiku with id ${id} found in server ${serverId}`);
     }
   }
 
