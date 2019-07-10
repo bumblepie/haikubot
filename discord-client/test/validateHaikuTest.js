@@ -52,6 +52,14 @@ describe('Haiku', () => {
       assert.equal(haiku.isHaiku(lines), false);
     });
 
+    it('should return false for a haiku if a line has digits in it', () => {
+      const lines = [
+        'The first line has 5 five.',
+        'The second line has seven.',
+        'The last line has five.'];
+      assert.equal(haiku.isHaiku(lines), false);
+    });
+
     it('should return throw an error if not given three lines', () => {
       let lines = [
         'The first line has five.',
