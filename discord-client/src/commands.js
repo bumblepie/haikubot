@@ -1,5 +1,5 @@
 const { formatHaiku } = require('./formatHaiku');
-const syllables = require('syllable');
+const { countSyllables } = require('./countSyllables');
 
 const commandMap = {};
 
@@ -38,7 +38,7 @@ commandMap.search = async (context, args) => {
 
 commandMap.count = (context, args) => {
   const value = args.join(' ');
-  const syllableCount = syllables(value);
+  const syllableCount = countSyllables(value);
   context.channel.send(`"${value}" is ${syllableCount} syllable${syllableCount === 1 ? '' : 's'}`);
 };
 

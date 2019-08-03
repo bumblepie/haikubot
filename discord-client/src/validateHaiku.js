@@ -1,4 +1,4 @@
-const syllables = require('syllable');
+const { countSyllables } = require('./countSyllables');
 
 const isHaiku = (lines) => {
   if (!(lines instanceof Array)) {
@@ -14,6 +14,10 @@ const isHaiku = (lines) => {
     if (typeof line !== 'string') {
       throw Error('An array of strings was expected.');
     }
+    // Ignore any lines with digits in them as they are ambiguous at best
+    if (line.match(/\d/g)) {
+      return false;
+    }
 
     let expectedSyllables = 0;
     switch (index) {
@@ -24,7 +28,7 @@ const isHaiku = (lines) => {
         break;
       default: expectedSyllables = 0;
     }
-    if (syllables(line) !== expectedSyllables) {
+    if (countSyllables(line) !== expectedSyllables) {
       return false;
     }
   }
@@ -42,7 +46,7 @@ const getSingleLinehaiku = (line) => {
   let totalSyllableCount = 0;
   const syllableCountCumulutive = [];
   words.forEach((word) => {
-    totalSyllableCount += syllables(word);
+    totalSyllableCount += countSyllables(word);
     syllableCountCumulutive.push(totalSyllableCount);
   });
 
