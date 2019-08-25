@@ -54,9 +54,9 @@ describe('Haiku', () => {
 
     it('should return false for a haiku if a line has digits in it', () => {
       const lines = [
-        'The first line has 5 five.',
-        'The second line has seven.',
-        'The last line has five.'];
+        'The first line has five (5).',
+        'The second line has seven (7).',
+        'The last line has five (5).'];
       assert.equal(haiku.isHaiku(lines), false);
     });
 
@@ -95,6 +95,11 @@ describe('Haiku', () => {
         'the last line has five',
       ];
       assert.deepEqual(haiku.getSingleLinehaiku(line), lines);
+    });
+
+    it('should return the null for a haiku that has numbers in it', () => {
+      const line = 'The first line has five (5), the second line has seven (7), the last line has five (5)';
+      assert.equal(haiku.getSingleLinehaiku(line), null);
     });
 
     it('should return null if the words don\'t break on 5 or 12 syllables', () => {
