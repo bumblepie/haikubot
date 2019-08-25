@@ -14,7 +14,7 @@ const isHaiku = (lines) => {
     if (typeof line !== 'string') {
       throw Error('An array of strings was expected.');
     }
-    // Ignore any lines with digits in them as they are ambiguous at best
+    // Fail if any lines have digits in them as they are ambiguous at best
     if (line.match(/\d/g)) {
       return false;
     }
@@ -41,14 +41,24 @@ const getSingleLinehaiku = (line) => {
     throw Error('A string was expected.');
   }
 
-  const words = line.split(' ');
+  // Fail if any lines have digits in them as they are ambiguous at best
+  if (line.match(/\d/g)) {
+    return null;
+  }
+
+  const words = line.split(/\s+/)
+    .filter(word => word.length > 0);
 
   let totalSyllableCount = 0;
   const syllableCountCumulutive = [];
-  words.forEach((word) => {
-    totalSyllableCount += countSyllables(word);
-    syllableCountCumulutive.push(totalSyllableCount);
-  });
+  try {
+    words.forEach((word) => {
+      totalSyllableCount += countSyllables(word);
+      syllableCountCumulutive.push(totalSyllableCount);
+    });
+  } catch (_) {
+    return null;
+  }
 
   if (syllableCountCumulutive.includes(5)
   && syllableCountCumulutive.includes(12)
