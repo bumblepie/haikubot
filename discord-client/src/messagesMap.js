@@ -10,10 +10,12 @@ class MessagesMap {
    * @messageId the id of the message
    * @initialState any initial state necessary for the onReact callback
    * @onReact a callback which will be executed when the message is reacted to.
-   *   It should have the signature (messageReaction, user, state) => newState
+   *   It should have the signature
+   *   (messageReaction, user, state) => { remove, newState }
+   *   @remove should indicate if the message needs to be removed from the map,
+   *   @newState is the updated state
    */
   addMessage(messageId, initialState, onReact) {
-    console.log({ messageId, initialState, onReact });
     this.messages.set(messageId, {
       state: initialState,
       onReact,
@@ -23,15 +25,19 @@ class MessagesMap {
   /**
    * Calls the provided callback on the message if it exists in the map
    */
-  onReact(messageReaction, user) {
+  async onReact(messageReaction, user) {
     const { message: { id } } = messageReaction;
     if (this.messages.has(id)) {
       const { state, onReact } = this.messages.get(id);
-      const newState = onReact(messageReaction, user, state);
-      this.messages.set(id, {
-        state: newState,
-        onReact,
-      });
+      const { remove, newState } = await onReact(messageReaction, user, state);
+      if (remove) {
+        this.messages.delete(id);
+      } else {
+        this.messages.set(id, {
+          state: newState,
+          onReact,
+        });
+      }
     }
   }
 }

@@ -31,7 +31,7 @@ const onReact = (messageReaction, user, state) => {
       break;
     default:
   }
-  return newState;
+  return { remove: false, newState };
 };
 
 // Send search results message to channel, add it to map

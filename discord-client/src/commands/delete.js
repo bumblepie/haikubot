@@ -8,14 +8,14 @@ const onReact = async (messageReaction, user, state) => {
   switch (emoji.name) {
     // Note: check for 1 more than required reactions as bot will have reacted too
     case '❌': if (count > requiredReactions) {
-      console.log('trigger');
       await deleteCallback();
       message.edit(`Deleted haiku ${haikuId}`, { embed: null });
+      return { remove: true, newState: null };
     }
       break;
     default:
   }
-  return state;
+  return { remove: false, newState: state };
 };
 
 exports.deleteCommand = async (context, args) => {
@@ -38,10 +38,9 @@ exports.deleteCommand = async (context, args) => {
       requiredReactions: REQUIRED_REACTIONS,
       deleteCallback,
     };
-    console.log(context.messagesMap);
     context.messagesMap.addMessage(message.id, initialState, onReact);
   } catch (error) {
-    console.log(`Caught error ${JSON.stringify(error)}, sending simplified error message to discord`);
+    console.error(`Caught error ${JSON.stringify(error)}, sending simplified error message to discord`);
     await context.channel.send(`An error occurred while fetching haiku ${haikuId}`);
   }
 };
