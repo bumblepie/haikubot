@@ -1,4 +1,5 @@
 const {
+  GraphQLBoolean,
   GraphQLObjectType,
   GraphQLSchema,
   GraphQLString,
@@ -42,6 +43,17 @@ const mutationType = new GraphQLObjectType({
         haikuInput: { type: HaikuInput },
       },
       resolve: (_, { haikuInput }, context) => context.repo.createHaiku(haikuInput),
+    },
+    deleteHaiku: {
+      type: new GraphQLNonNull(GraphQLBoolean),
+      args: {
+        serverId: { type: new GraphQLNonNull(GraphQLString) },
+        id: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve: async (_, { serverId, id }, context) => {
+        await context.repo.clearHaiku(serverId, id);
+        return true;
+      },
     },
   },
 });

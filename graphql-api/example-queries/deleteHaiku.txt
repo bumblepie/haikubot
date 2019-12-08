@@ -1,0 +1,3 @@
+{
+	deleteHaiku(serverId: "server1", id: "haiku01")
+}

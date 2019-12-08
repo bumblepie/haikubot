@@ -84,6 +84,31 @@ class GraphqlApi {
         });
     });
   }
+
+  deleteHaiku(serverId, haikuId) {
+    const requestBody = queryFactory.deleteHaikuMutation(serverId, haikuId);
+    const requestOptions = {
+      method: 'POST',
+      url: this.baseUrl,
+      json: true,
+      body: requestBody,
+    };
+    return new Promise((resolve, reject) => {
+      requestPromise(requestOptions)
+        .then((body) => {
+          if ('errors' in body) {
+            throw body.errors;
+          }
+          resolve();
+        })
+        .catch((error) => {
+          console.log('Error fetching haiku.');
+          console.log(` request body: ${JSON.stringify(requestBody)}`);
+          console.log(` error: ${JSON.stringify(error)}`);
+          reject(error);
+        });
+    });
+  }
 }
 
 exports.GraphqlApi = GraphqlApi;

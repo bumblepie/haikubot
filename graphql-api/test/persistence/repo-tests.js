@@ -96,6 +96,12 @@ exports.testRepo = (repo, repoType) => {
         await assertHaikuNotInRepo(repo, exampleHaikuInput.serverId, id);
       });
 
+      it('should throw an error if the haiku cannot be found', async () => {
+        const id = '1';
+        const { serverId } = exampleHaikuInput;
+        await assert.rejects(() => repo.clearHaiku(serverId, id), Error(`No haiku with id ${id} found in server ${serverId}`));
+      });
+
       it('should clear only the specified haiku from the db', async () => {
         const id1 = (await repo.createHaiku(exampleHaikuInput)).id;
         const id2 = (await repo.createHaiku(exampleHaikuInput)).id;

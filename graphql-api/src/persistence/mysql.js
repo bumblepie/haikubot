@@ -171,6 +171,10 @@ class MySqlHaikuDB {
   }
 
   async clearHaiku(serverId, id) {
+    const haikusResult = await this.query(mysql.format('SELECT * FROM haikus WHERE ID=? AND serverID=?', [id, serverId]));
+    if (haikusResult.length === 0) {
+      throw new Error(`No haiku with id ${id} found in server ${serverId}`);
+    }
     await this.query(mysql.format('DELETE FROM haikuLines WHERE haikuID=?', [id]));
     await this.query(mysql.format('DELETE FROM authors WHERE haikuID=?', [id]));
     await this.query(mysql.format('DELETE FROM haikus WHERE ID=? AND serverID=?', [id, serverId]));
