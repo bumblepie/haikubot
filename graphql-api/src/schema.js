@@ -6,7 +6,7 @@ const {
   GraphQLList,
   GraphQLNonNull,
 } = require('graphql');
-const { HaikuType } = require('./schema/types/HaikuType');
+const { HaikuType } = require('./schema/Types');
 const { HaikuInput } = require('./schema/inputs/HaikuInput');
 
 // Define the Query type
