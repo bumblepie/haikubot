@@ -267,5 +267,38 @@ exports.testRepo = (repo, repoType) => {
         await assert.rejects(() => repo.searchHaikus(serverId, ['valid', 'inval!d', 'also_valid*'], Error('Invalid keywords: [\'inval!d\']')));
       });
     });
+
+    describe('#getHaikusInServer', () => {
+      // Set up haiku in same server for convenience here
+      const { serverId } = exampleHaikuInput;
+      const serverId2 = exampleHaikuInput2.serverId;
+
+      const exampleHaikuInput2SameServer = {
+        ...exampleHaikuInput2,
+        serverId,
+      };
+
+      const exampleHaiku2SameServer = {
+        ...exampleHaiku2,
+        server: serverId,
+      };
+
+      it('should return all haikus in the specified server', async () => {
+        const { id, timestamp } = await repo.createHaiku(exampleHaikuInput);
+        const haiku2 = await repo.createHaiku(exampleHaikuInput2SameServer);
+        const haiku3 = await repo.createHaiku(exampleHaikuInput2);
+
+        let results = await repo.getHaikusInServer(serverId);
+        assert.deepEqual(results, [
+          { id, timestamp, ...exampleHaiku },
+          { id: haiku2.id, timestamp: haiku2.timestamp, ...exampleHaiku2SameServer },
+        ]);
+
+        results = await repo.getHaikusInServer(serverId2);
+        assert.deepEqual(results, [
+          { id: haiku3.id, timestamp: haiku3.timestamp, ...exampleHaiku2 },
+        ]);
+      });
+    });
   });
 };

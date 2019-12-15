@@ -43,6 +43,10 @@ ServerType = new GraphQLObjectType({
     id: {
       type: new GraphQLNonNull(GraphQLID),
     },
+    haikus: {
+      type: new GraphQLList(new GraphQLNonNull(HaikuType)),
+      resolve: (server, _, context) => context.repo.getHaikusInServer(server.id),
+    },
   }),
 });
 

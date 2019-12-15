@@ -75,6 +75,15 @@ class FakeHaikuDB {
     });
   }
 
+  getHaikusInServer(serverID) {
+    return new Promise((resolve) => {
+      const result = Object.values(this.haikuMap)
+        .filter(haiku => haiku.server === serverID)
+        .map(haiku => new Haiku(haiku.id, this.haikuMap[haiku.id]));
+      resolve(result);
+    });
+  }
+
   /* eslint-disable class-methods-use-this */
   getChannel(id) {
     return { id };

@@ -147,6 +147,12 @@ class SQLiteHaikuDB {
     return Promise.all(haikus);
   }
 
+  async getHaikusInServer(serverID) {
+    const haikusResult = await this.query('SELECT * FROM haikus WHERE serverID = ?', [serverID]);
+    const haikus = haikusResult.map(haiku => this.getHaiku(haiku.serverID, haiku.ID));
+    return Promise.all(haikus);
+  }
+
   async clearHaiku(serverId, id) {
     const haikusResult = await this.query('SELECT * FROM haikus WHERE ID=? AND serverID=?', [id, serverId]);
     if (haikusResult.length === 0) {
