@@ -109,6 +109,32 @@ class GraphqlApi {
         });
     });
   }
+
+  getHaikusInServer(serverId) {
+    const requestBody = queryFactory.getHaikusInServerQuery(serverId);
+    const requestOptions = {
+      method: 'POST',
+      url: this.baseUrl,
+      json: true,
+      body: requestBody,
+    };
+    return new Promise((resolve, reject) => {
+      requestPromise(requestOptions)
+        .then((body) => {
+          if ('errors' in body) {
+            throw body.errors;
+          }
+          const searchResults = body.data.getServer.haikus;
+          resolve(searchResults);
+        })
+        .catch((error) => {
+          console.log('Error fetching haiku.');
+          console.log(` request body: ${JSON.stringify(requestBody)}`);
+          console.log(` error: ${JSON.stringify(error)}`);
+          reject(error);
+        });
+    });
+  }
 }
 
 exports.GraphqlApi = GraphqlApi;

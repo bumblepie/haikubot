@@ -39,3 +39,11 @@ exports.deleteHaikuMutation = (serverId, haikuId) => (
       haikuId,
     },
   });
+
+exports.getHaikusInServerQuery = serverId => (
+  {
+    query: queries.getHaikusInServerQuery,
+    variables: {
+      serverId,
+    },
+  });
