@@ -4,7 +4,7 @@ const sqlite = require('sqlite3');
 
 const sqliteDBFile = process.env.CULLING_DB_FILE || './deploy/db/culling.db';
 let db;
-const REQUIRED_REACTIONS = 1;
+const REQUIRED_REACTIONS = 5;
 
 const initDB = async () => new Promise((resolve, reject) => {
   if (db != null) {
