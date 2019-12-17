@@ -1,7 +1,57 @@
 const { formatHaiku } = require('../formatHaiku');
 const { isHaiku } = require('../validateHaiku');
+const sqlite = require('sqlite3');
 
+const sqliteDBFile = process.env.CULLING_DB_FILE || './deploy/db/culling.db';
+let db;
 const REQUIRED_REACTIONS = 1;
+
+const initDB = async () => new Promise((resolve, reject) => {
+  if (db != null) {
+    resolve();
+  }
+  db = new sqlite.Database(sqliteDBFile, async (err) => {
+    if (err) {
+      reject(err);
+    }
+    db.run('CREATE TABLE IF NOT EXISTS savedHaikus (ID STRING NOT NULL, PRIMARY KEY (ID))', (err2) => {
+      if (err2) {
+        reject(err2);
+      }
+      resolve();
+    });
+  });
+});
+
+const queryDB = async (sql, args) => {
+  await initDB();
+  return new Promise((resolve, reject) => {
+    db.all(sql, args, (err, rows) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(rows);
+    });
+  });
+};
+
+const runDBCmd = async (sql, args) => {
+  await initDB();
+  return new Promise((resolve, reject) => {
+    db.run(sql, args, (err) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(this);
+    });
+  });
+};
+
+const saveHaiku = async (haikuId) => {
+  await runDBCmd('INSERT INTO savedHaikus (ID) values (?)', [haikuId]);
+};
+
+const getSavedHaikus = async () => queryDB('SELECT * FROM savedHaikus', []);
 
 // Map of (server id -> serverCullingMap) for each server
 // serverCullingMap is an object with the form {
@@ -23,7 +73,10 @@ const updateCullingMap = async (context, serverId) => {
   // Refetch when run out of candidates
   if (serverCullingMap.candidates.length === 0) {
     const haikus = await context.api.getHaikusInServer(serverId);
-    const cullingCandidates = haikus.filter(haiku => !isHaiku(haiku.lines));
+    const savedHaikus = (await getSavedHaikus())
+      .map(row => row.ID.toString());
+    const cullingCandidates = haikus.filter(haiku => !isHaiku(haiku.lines))
+      .filter(haiku => !savedHaikus.includes(haiku.id));
     serverCullingMap.candidates = cullingCandidates;
   }
   cullingMap.set(serverId, serverCullingMap);
@@ -51,14 +104,24 @@ const onReact = async (messageReaction, user, state) => {
   switch (emoji.name) {
     // Note: check for 1 more than required reactions as bot will have reacted too
     case '👍': if (count > requiredReactions) {
-      await saveCallback();
-      message.edit(`Saved haiku ${haikuId}`, { embed: null });
+      try {
+        await saveCallback();
+        message.edit(`Saved haiku ${haikuId}`, { embed: null });
+      } catch (err) {
+        console.error(err);
+        message.edit(`Error saving haiku ${haikuId}`, { embed: null });
+      }
       return { remove: true, newState: null };
     }
       break;
     case '👎': if (count > requiredReactions) {
-      await deleteCallback();
-      message.edit(`Deleted haiku ${haikuId}`, { embed: null });
+      try {
+        await deleteCallback();
+        message.edit(`Deleted haiku ${haikuId}`, { embed: null });
+      } catch (err) {
+        console.error(err);
+        message.edit(`Error deleting haiku ${haikuId}`, { embed: null });
+      }
       return { remove: true, newState: null };
     }
       break;
@@ -72,12 +135,22 @@ exports.cullCommand = async (context, args) => {
     throw Error('Invalid number of arguments for cull');
   }
   const serverId = context.server.id;
-  const haiku = await fetchHaikuToCull(context, serverId);
-  if (haiku == null) {
-    await context.channel.send('No haikus left to cull!');
+  let haikuId;
+  let haiku;
+  try {
+    haiku = await fetchHaikuToCull(context, serverId);
+    if (haiku == null) {
+      await context.channel.send('No haikus left to cull!');
+      return;
+    }
+    haikuId = haiku.id;
+  } catch (err) {
+    console.error(err);
+    console.error(`Caught error ${JSON.stringify(err)}, sending simplified error message to discord`);
+    await context.channel.send('An error occurred while fetching haiku to cull');
     return;
   }
-  const haikuId = haiku.id;
+
   try {
     // Delete old culling message from map if it exists
     const serverCullingMap = cullingMap.get(serverId);
@@ -104,7 +177,7 @@ exports.cullCommand = async (context, args) => {
 
     // Add message to message map so we can cull/save the haiku based on reactions
     const deleteCallback = async () => context.api.deleteHaiku(context.server.id, haikuId);
-    const saveCallback = async () => console.log('save haiku');
+    const saveCallback = async () => saveHaiku(haikuId);
     const initialState = {
       haikuId,
       requiredReactions: REQUIRED_REACTIONS,
