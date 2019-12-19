@@ -28,7 +28,13 @@ const isHaiku = (lines) => {
         break;
       default: expectedSyllables = 0;
     }
-    if (countSyllables(line) !== expectedSyllables) {
+    let syllableCount = 0;
+    try {
+      syllableCount = countSyllables(line);
+    } catch (e) {
+      syllableCount = 0;
+    }
+    if (syllableCount !== expectedSyllables) {
       return false;
     }
   }

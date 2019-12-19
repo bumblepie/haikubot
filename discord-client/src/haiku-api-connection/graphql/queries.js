@@ -32,3 +32,18 @@ exports.deleteHaikuMutation = `
 mutation deleteHaiku($serverId: String!, $haikuId: String!){
   deleteHaiku(serverId: $serverId, id: $haikuId)
 }`;
+
+exports.getHaikusInServerQuery = `
+query getHaikusInServer($serverId: String!){
+  getServer(id: $serverId) {
+    haikus {
+      id
+      server {
+        id
+      }
+      authors
+      lines
+      timestamp
+    }
+  }
+}`;

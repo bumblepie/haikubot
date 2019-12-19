@@ -2,6 +2,7 @@ const { formatHaiku } = require('./formatHaiku');
 const { countSyllables } = require('./countSyllables');
 const { searchResultsCommand } = require('./commands/searchResults');
 const { deleteCommand } = require('./commands/delete');
+const { cullCommand } = require('./commands/cull');
 
 const commandMap = {};
 
@@ -22,6 +23,8 @@ commandMap.gethaikubyid = async (context, args) => {
 };
 
 commandMap.search = searchResultsCommand;
+commandMap.delete = deleteCommand;
+commandMap.cull = cullCommand;
 
 commandMap.count = (context, args) => {
   const value = args.join(' ');
@@ -40,5 +43,3 @@ exports.tryCommand = (context, args) => {
   }
   return commandMap[lowercaseCommandName](context, commandArgs);
 };
-
-commandMap.delete = deleteCommand;

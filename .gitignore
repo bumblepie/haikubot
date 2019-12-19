@@ -4,3 +4,4 @@ node_modules
 #log files
 *.log
 graphql-api/deploy/
+discord-client/deploy/

@@ -1,12 +1,14 @@
 const {
+  GraphQLID,
   GraphQLList,
   GraphQLObjectType,
   GraphQLString,
   GraphQLNonNull,
 } = require('graphql');
 const { GraphQLDateTime } = require('graphql-iso-date');
-const { ServerType } = require('./ServerType');
-const { ChannelType } = require('./ChannelType');
+
+let ServerType;
+let ChannelType;
 
 const HaikuType = new GraphQLObjectType({
   name: 'Haiku',
@@ -35,4 +37,28 @@ const HaikuType = new GraphQLObjectType({
   }),
 });
 
+ServerType = new GraphQLObjectType({
+  name: 'Server',
+  fields: () => ({
+    id: {
+      type: new GraphQLNonNull(GraphQLID),
+    },
+    haikus: {
+      type: new GraphQLList(new GraphQLNonNull(HaikuType)),
+      resolve: (server, _, context) => context.repo.getHaikusInServer(server.id),
+    },
+  }),
+});
+
+ChannelType = new GraphQLObjectType({
+  name: 'Channel',
+  fields: () => ({
+    id: {
+      type: new GraphQLNonNull(GraphQLID),
+    },
+  }),
+});
+
 exports.HaikuType = HaikuType;
+exports.ServerType = ServerType;
+exports.ChannelType = ChannelType;

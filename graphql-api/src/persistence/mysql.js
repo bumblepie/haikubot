@@ -170,6 +170,15 @@ class MySqlHaikuDB {
     return Promise.all(haikus);
   }
 
+  async getHaikusInServer(serverId) {
+    const searchResults = await this.query('SELECT ID FROM haikus WHERE serverID = ?', [serverId]);
+    if (searchResults.length === 0) {
+      return [];
+    }
+    const haikus = searchResults.map(haiku => this.getHaiku(serverId, haiku.ID));
+    return Promise.all(haikus);
+  }
+
   async clearHaiku(serverId, id) {
     const haikusResult = await this.query(mysql.format('SELECT * FROM haikus WHERE ID=? AND serverID=?', [id, serverId]));
     if (haikusResult.length === 0) {
