@@ -14,19 +14,19 @@ const switchResults = async (state, indexDelta, message) => {
     const embed = await formatHaiku(searchResults[newIndex], context.client, context.server);
     await message.edit(content, embed);
 
-    return { searchResults, currentIndex: newIndex };
+    return { searchResults, currentIndex: newIndex, context };
   }
-  return { searchResults, currentIndex };
+  return { searchResults, currentIndex, context };
 };
 
-const onReact = (messageReaction, user, state) => {
+const onReact = async (messageReaction, user, state) => {
   const { message, emoji } = messageReaction;
   let newState = { ...state };
   switch (emoji.name) {
-    case '⬅': newState = switchResults(state, -1, message);
+    case '⬅': newState = await switchResults(state, -1, message);
       messageReaction.remove(user);
       break;
-    case '➡': newState = switchResults(state, 1, message);
+    case '➡': newState = await switchResults(state, 1, message);
       messageReaction.remove(user);
       break;
     default:
